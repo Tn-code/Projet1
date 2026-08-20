@@ -25,9 +25,20 @@ const FirebaseLogin = ({ onLogin, language, setLanguage }) => {
     setLoading(false);
 
     if (result.error) {
-      setError(result.error);
+      let userMessage = result.error;
+      if (result.error.includes('user-not-found')) {
+        userMessage = 'No account found with this email. Please register first.';
+      } else if (result.error.includes('wrong-password')) {
+        userMessage = 'Incorrect password. Please try again.';
+      } else if (result.error.includes('invalid-email')) {
+        userMessage = 'Invalid email format. Please check your email.';
+      } else if (result.error.includes('too-many-requests')) {
+        userMessage = 'Too many failed attempts. Please try again later.';
+      } else if (result.error.includes('network-request-failed')) {
+        userMessage = 'Network error. Please check your connection.';
+      }
+      setError(userMessage);
     } else if (result.user) {
-      // Save user to Firestore
       await saveUserProgress(result.user.uid, {
         email: result.user.email,
         displayName: result.user.displayName || '',
@@ -64,8 +75,7 @@ const FirebaseLogin = ({ onLogin, language, setLanguage }) => {
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: 'white',
-          fontSize: '36px'
+          color: 'white'
         }}>5S</div>
         <h1 style={{ fontSize: '24px', fontWeight: '600', color: '#1a2a3a' }}>5S Methodology</h1>
         <p style={{ color: '#5a6a7a' }}>Login or register to continue</p>
@@ -136,9 +146,12 @@ const FirebaseLogin = ({ onLogin, language, setLanguage }) => {
             padding: '12px 16px',
             borderRadius: '10px',
             marginBottom: '20px',
-            fontSize: '14px'
+            fontSize: '14px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
           }}>
-            ⚠️ {error}
+            <span>⚠️</span> {error}
           </div>
         )}
 

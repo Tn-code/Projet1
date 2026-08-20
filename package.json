@@ -1,33 +1,18 @@
 {
   "name": "5s-game",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
-  "description": "Interactive 5S Methodology Learning Game with Firebase",
-  "author": "Your Name",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/your-username/5s-game.git"
-  },
-  "keywords": [
-    "5s",
-    "methodology",
-    "learning",
-    "game",
-    "firebase",
-    "react",
-    "vite"
-  ],
+  "description": "Interactive 5S Methodology Learning Platform",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview",
-    "deploy": "npm run build && firebase deploy --only hosting"
+    "cloudflare-build": "npm install && npm run build"
   },
   "dependencies": {
     "firebase": "^10.7.1",
-    "html2pdf.js": "^0.14.0",
+    "html2pdf.js": "^0.10.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
@@ -35,6 +20,7 @@
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
     "@vitejs/plugin-react": "^4.2.1",
+    "terser": "^5.50.0",
     "vite": "^5.0.8"
   }
 }

@@ -1,0 +1,16 @@
+name = "5s-game"
+type = "pages"
+
+[build]
+command = "npm run build"
+cwd = "/"
+
+[build.environment]
+NODE_VERSION = "18"
+NPM_VERSION = "9"
+
+[env.production]
+vars = { NODE_ENV = "production" }
+
+[env.preview]
+vars = { NODE_ENV = "preview" }

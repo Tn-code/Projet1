@@ -1,51 +1,38 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
 
-# Node modules
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# Build output
+dist/
+build/
+.wrangler/
 
 # Environment variables
 .env
 .env.local
 .env.*.local
 
-# Build outputs
-build/
-dist/
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
 
 # Firebase
 .firebase/
 .firebaserc
+firebase-debug.log
 
-# Testing
-coverage/
-.nyc_output/
-
-# Misc
-*.pem
-*.key
-*.crt
-*.cert
-.DS_Store
-Thumbs.db
-.env
+# Cloudflare
+.wrangler/
