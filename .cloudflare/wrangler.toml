@@ -1,0 +1,9 @@
+name = "5s-game"
+type = "pages"
+
+[build]
+command = "npm run build"
+
+[build.environment]
+NODE_VERSION = "18"
+NPM_VERSION = "9"
