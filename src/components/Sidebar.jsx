@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Quiz from './Quiz';
+import Assessment from './Assessment';
 
 const Sidebar = ({ 
   user, 
@@ -13,6 +14,7 @@ const Sidebar = ({
   onQuizComplete 
 }) => {
   const [showQuiz, setShowQuiz] = useState(false);
+  const [showAssessment, setShowAssessment] = useState(false);
 
   const getTranslation = (key) => {
     const translations = {
@@ -20,6 +22,7 @@ const Sidebar = ({
       dashboard: { en: '📊 Dashboard', fr: '📊 Tableau de bord', ar: '📊 لوحة التحكم' },
       game: { en: '🎯 Game', fr: '🎯 Jeu', ar: '🎯 اللعبة' },
       quiz: { en: '📝 Quiz (50 Questions)', fr: '📝 Quiz (50 Questions)', ar: '📝 اختبار (50 سؤال)' },
+      assessment: { en: '📋 5S Assessment', fr: '📋 Évaluation 5S', ar: '📋 تقييم 5S' },
       profile: { en: '👤 Profile', fr: '👤 Profil', ar: '👤 الملف الشخصي' },
       logout: { en: '🚪 Logout', fr: '🚪 Déconnexion', ar: '🚪 تسجيل الخروج' },
       progress: { en: 'Progress', fr: 'Progrès', ar: 'التقدم' },
@@ -37,6 +40,14 @@ const Sidebar = ({
     if (onQuizComplete) {
       onQuizComplete();
     }
+  };
+
+  const handleAssessmentClick = () => {
+    setShowAssessment(true);
+  };
+
+  const handleAssessmentClose = () => {
+    setShowAssessment(false);
   };
 
   return (
@@ -185,6 +196,41 @@ const Sidebar = ({
               }}>50</span>
             </button>
 
+            <button
+              onClick={handleAssessmentClick}
+              style={{
+                padding: '12px 16px',
+                backgroundColor: '#dbeafe',
+                borderRadius: '10px',
+                fontWeight: '600',
+                color: '#1d4ed8',
+                fontSize: '14px',
+                border: '2px solid #3b82f6',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#bfdbfe';
+                e.target.style.transform = 'scale(1.02)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = '#dbeafe';
+                e.target.style.transform = 'scale(1)';
+              }}
+            >
+              📋 {getTranslation('assessment')}
+              <span style={{
+                fontSize: '11px',
+                backgroundColor: '#3b82f6',
+                color: 'white',
+                padding: '2px 8px',
+                borderRadius: '12px'
+              }}>15</span>
+            </button>
+
             <div style={{
               padding: '12px 16px',
               backgroundColor: '#f8fafc',
@@ -262,6 +308,14 @@ const Sidebar = ({
         <Quiz
           language={language}
           onClose={handleQuizClose}
+        />
+      )}
+
+      {/* Assessment Modal */}
+      {showAssessment && (
+        <Assessment
+          language={language}
+          onClose={handleAssessmentClose}
         />
       )}
 

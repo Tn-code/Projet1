@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import FirebaseLogin from './components/FirebaseLogin';
 import Game5S from './components/Game5S';
+import AdminDashboard from './components/AdminDashboard';
 import { onAuthStateChange } from './services/authService';
 
 const App = () => {
@@ -8,16 +9,27 @@ const App = () => {
   const [language, setLanguage] = useState('en');
   const [gameState, setGameState] = useState('login');
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Admin emails list - kept for security
+  const ADMIN_EMAILS = [
+    'houssine.trabelsi6@gmail.com',
+    'admin@5sgame.com'
+  ];
 
   useEffect(() => {
     const unsubscribe = onAuthStateChange((firebaseUser) => {
       setLoading(false);
       if (firebaseUser) {
         setUser(firebaseUser);
-        setGameState('game');
+        // Check if user is admin (hidden check)
+        const isAdminUser = ADMIN_EMAILS.includes(firebaseUser.email);
+        setIsAdmin(isAdminUser);
+        setGameState(isAdminUser ? 'admin' : 'game');
       } else {
         setUser(null);
         setGameState('login');
+        setIsAdmin(false);
       }
     });
     return () => unsubscribe();
@@ -25,12 +37,15 @@ const App = () => {
 
   const handleLogin = (firebaseUser) => {
     setUser(firebaseUser);
-    setGameState('game');
+    const isAdminUser = ADMIN_EMAILS.includes(firebaseUser.email);
+    setIsAdmin(isAdminUser);
+    setGameState(isAdminUser ? 'admin' : 'game');
   };
 
   const handleLogout = () => {
     setUser(null);
     setGameState('login');
+    setIsAdmin(false);
   };
 
   if (loading) {
@@ -54,6 +69,16 @@ const App = () => {
         onLogin={handleLogin}
         language={language}
         setLanguage={setLanguage}
+      />
+    );
+  }
+
+  if (gameState === 'admin') {
+    return (
+      <AdminDashboard 
+        user={user}
+        onLogout={handleLogout}
+        language={language}
       />
     );
   }

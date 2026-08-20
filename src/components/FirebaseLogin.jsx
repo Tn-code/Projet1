@@ -27,6 +27,7 @@ const FirebaseLogin = ({ onLogin, language, setLanguage }) => {
     if (result.error) {
       setError(result.error);
     } else if (result.user) {
+      // Save user to Firestore
       await saveUserProgress(result.user.uid, {
         email: result.user.email,
         displayName: result.user.displayName || '',
@@ -88,6 +89,14 @@ const FirebaseLogin = ({ onLogin, language, setLanguage }) => {
               outline: 'none',
               backgroundColor: '#f8fafc'
             }}
+            onFocus={(e) => {
+              e.target.style.borderColor = '#667eea';
+              e.target.style.boxShadow = '0 0 0 4px rgba(102, 126, 234, 0.1)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = '#e2e8f0';
+              e.target.style.boxShadow = 'none';
+            }}
           />
         </div>
 
@@ -108,6 +117,14 @@ const FirebaseLogin = ({ onLogin, language, setLanguage }) => {
               fontSize: '16px',
               outline: 'none',
               backgroundColor: '#f8fafc'
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = '#667eea';
+              e.target.style.boxShadow = '0 0 0 4px rgba(102, 126, 234, 0.1)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = '#e2e8f0';
+              e.target.style.boxShadow = 'none';
             }}
           />
         </div>
@@ -131,14 +148,28 @@ const FirebaseLogin = ({ onLogin, language, setLanguage }) => {
           style={{
             width: '100%',
             padding: '14px',
-            backgroundColor: '#2193b0',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             color: 'white',
             border: 'none',
             borderRadius: '12px',
             fontSize: '16px',
             fontWeight: '600',
             cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: loading ? 0.7 : 1
+            opacity: loading ? 0.7 : 1,
+            transition: 'all 0.3s',
+            boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)'
+          }}
+          onMouseEnter={(e) => {
+            if (!loading) {
+              e.target.style.transform = 'translateY(-2px)';
+              e.target.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.5)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!loading) {
+              e.target.style.transform = 'translateY(0)';
+              e.target.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)';
+            }
           }}
         >
           {loading ? 'Loading...' : (isRegister ? 'Register' : 'Login')}
@@ -154,15 +185,29 @@ const FirebaseLogin = ({ onLogin, language, setLanguage }) => {
           style={{
             background: 'none',
             border: 'none',
-            color: '#2193b0',
+            color: '#667eea',
             cursor: 'pointer',
             fontSize: '14px',
             fontWeight: '500',
-            textDecoration: 'underline'
+            textDecoration: 'underline',
+            transition: 'color 0.2s'
           }}
+          onMouseEnter={(e) => e.target.style.color = '#764ba2'}
+          onMouseLeave={(e) => e.target.style.color = '#667eea'}
         >
           {isRegister ? 'Already have an account? Login' : "Don't have an account? Register"}
         </button>
+      </div>
+
+      <div style={{
+        marginTop: '25px',
+        paddingTop: '20px',
+        borderTop: '2px solid #f1f5f9',
+        textAlign: 'center'
+      }}>
+        <p style={{ color: '#94a3b8', fontSize: '12px' }}>
+          🔒 Secure authentication with Firebase
+        </p>
       </div>
     </div>
   );
