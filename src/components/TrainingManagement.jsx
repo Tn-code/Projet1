@@ -1,44 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { 
+  getAllTrainings, 
+  addTraining, 
+  updateTraining, 
+  deleteTraining 
+} from '../services/trainingService';
 
 const TrainingManagement = ({ language }) => {
-  const [trainings, setTrainings] = useState([
-    {
-      id: 1,
-      title: { en: '5S Introduction', fr: 'Introduction 5S', ar: 'مقدمة 5S' },
-      type: 'online',
-      duration: '2h',
-      participants: 15,
-      status: 'active',
-      date: '2024-01-15'
-    },
-    {
-      id: 2,
-      title: { en: 'Advanced 5S Techniques', fr: 'Techniques 5S Avancées', ar: 'تقنيات 5S المتقدمة' },
-      type: 'in-person',
-      duration: '4h',
-      participants: 8,
-      status: 'upcoming',
-      date: '2024-02-01'
-    },
-    {
-      id: 3,
-      title: { en: '5S Workplace Organization', fr: 'Organisation 5S du Lieu de Travail', ar: 'تنظيم مكان العمل 5S' },
-      type: 'online',
-      duration: '3h',
-      participants: 22,
-      status: 'completed',
-      date: '2023-12-10'
-    }
-  ]);
-
+  const [trainings, setTrainings] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [newTraining, setNewTraining] = useState({
     title: '',
     type: 'online',
     duration: '',
-    date: ''
+    date: '',
+    participants: 0,
+    status: 'upcoming'
   });
+
+  useEffect(() => {
+    loadTrainings();
+  }, []);
+
+  const loadTrainings = async () => {
+    setLoading(true);
+    const result = await getAllTrainings();
+    if (result.data) {
+      setTrainings(result.data);
+    }
+    setLoading(false);
+  };
 
   const getTranslation = (key) => {
     const translations = {
@@ -63,7 +56,8 @@ const TrainingManagement = ({ language }) => {
       save: { en: 'Save', fr: 'Enregistrer', ar: 'حفظ' },
       update: { en: 'Update', fr: 'Mettre à Jour', ar: 'تحديث' },
       editTraining: { en: 'Edit Training', fr: 'Modifier la Formation', ar: 'تعديل التدريب' },
-      addNew: { en: 'Add New Training', fr: 'Ajouter une Nouvelle Formation', ar: 'إضافة تدريب جديد' }
+      addNew: { en: 'Add New Training', fr: 'Ajouter une Nouvelle Formation', ar: 'إضافة تدريب جديد' },
+      loading: { en: 'Loading...', fr: 'Chargement...', ar: 'جاري التحميل...' }
     };
     return translations[key]?.[language] || translations[key]?.en || key;
   };
@@ -74,7 +68,9 @@ const TrainingManagement = ({ language }) => {
       title: '',
       type: 'online',
       duration: '',
-      date: ''
+      date: '',
+      participants: 0,
+      status: 'upcoming'
     });
     setShowAddForm(true);
   };
@@ -85,51 +81,55 @@ const TrainingManagement = ({ language }) => {
       title: training.title.en || training.title,
       type: training.type,
       duration: training.duration,
-      date: training.date
+      date: training.date,
+      participants: training.participants || 0,
+      status: training.status
     });
     setShowAddForm(true);
   };
 
-  const handleSaveTraining = () => {
+  const handleSaveTraining = async () => {
+    const trainingData = {
+      title: { en: newTraining.title, fr: newTraining.title, ar: newTraining.title },
+      type: newTraining.type,
+      duration: newTraining.duration,
+      date: newTraining.date,
+      participants: parseInt(newTraining.participants) || 0,
+      status: newTraining.status
+    };
+
+    let result;
     if (editingId) {
-      // Update existing training
-      setTrainings(trainings.map(t => 
-        t.id === editingId 
-          ? { 
-              ...t, 
-              title: { en: newTraining.title, fr: newTraining.title, ar: newTraining.title },
-              type: newTraining.type,
-              duration: newTraining.duration,
-              date: newTraining.date
-            }
-          : t
-      ));
+      result = await updateTraining(editingId, trainingData);
     } else {
-      // Add new training
-      const newTrainingObj = {
-        id: Date.now(),
-        title: { en: newTraining.title, fr: newTraining.title, ar: newTraining.title },
-        type: newTraining.type,
-        duration: newTraining.duration,
-        participants: 0,
-        status: 'upcoming',
-        date: newTraining.date
-      };
-      setTrainings([...trainings, newTrainingObj]);
+      result = await addTraining(trainingData);
     }
-    setShowAddForm(false);
-    setEditingId(null);
-    setNewTraining({
-      title: '',
-      type: 'online',
-      duration: '',
-      date: ''
-    });
+
+    if (!result.error) {
+      await loadTrainings();
+      setShowAddForm(false);
+      setEditingId(null);
+      setNewTraining({
+        title: '',
+        type: 'online',
+        duration: '',
+        date: '',
+        participants: 0,
+        status: 'upcoming'
+      });
+    } else {
+      alert('Error saving training: ' + result.error);
+    }
   };
 
-  const handleDeleteTraining = (id) => {
+  const handleDeleteTraining = async (id) => {
     if (window.confirm('Are you sure you want to delete this training?')) {
-      setTrainings(trainings.filter(t => t.id !== id));
+      const result = await deleteTraining(id);
+      if (!result.error) {
+        await loadTrainings();
+      } else {
+        alert('Error deleting training: ' + result.error);
+      }
     }
   };
 
@@ -140,7 +140,9 @@ const TrainingManagement = ({ language }) => {
       title: '',
       type: 'online',
       duration: '',
-      date: ''
+      date: '',
+      participants: 0,
+      status: 'upcoming'
     });
   };
 
@@ -152,6 +154,14 @@ const TrainingManagement = ({ language }) => {
       default: return '#94a3b8';
     }
   };
+
+  if (loading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '40px', color: '#5a6a7a' }}>
+        {getTranslation('loading')}
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: '20px' }}>
@@ -271,6 +281,41 @@ const TrainingManagement = ({ language }) => {
               onFocus={(e) => e.target.style.borderColor = '#667eea'}
               onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
             />
+            <input
+              type="number"
+              placeholder={getTranslation('participants')}
+              value={newTraining.participants}
+              onChange={(e) => setNewTraining({...newTraining, participants: e.target.value})}
+              style={{
+                padding: '10px 14px',
+                border: '2px solid #e2e8f0',
+                borderRadius: '8px',
+                fontSize: '14px',
+                outline: 'none',
+                transition: 'border-color 0.2s'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#667eea'}
+              onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
+              min="0"
+            />
+            <select
+              value={newTraining.status}
+              onChange={(e) => setNewTraining({...newTraining, status: e.target.value})}
+              style={{
+                padding: '10px 14px',
+                border: '2px solid #e2e8f0',
+                borderRadius: '8px',
+                fontSize: '14px',
+                outline: 'none',
+                transition: 'border-color 0.2s'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#667eea'}
+              onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
+            >
+              <option value="upcoming">{getTranslation('upcoming')}</option>
+              <option value="active">{getTranslation('active')}</option>
+              <option value="completed">{getTranslation('completed')}</option>
+            </select>
           </div>
           <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
             <button
@@ -341,125 +386,108 @@ const TrainingManagement = ({ language }) => {
             </tr>
           </thead>
           <tbody>
-            {trainings.map((t, i) => (
-              <tr key={t.id} style={{
-                borderBottom: '1px solid #e2e8f0',
-                transition: 'background-color 0.2s'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-                <td style={{ padding: '12px', fontWeight: '500' }}>
-                  {t.title[language] || t.title.en}
-                </td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>
-                  {t.type === 'online' ? '🌐' : '🏢'} {getTranslation(t.type)}
-                </td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>{t.duration}</td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>
-                  <span style={{
-                    padding: '2px 10px',
-                    borderRadius: '12px',
-                    backgroundColor: '#dbeafe',
-                    color: '#1e40af',
-                    fontWeight: '600',
-                    fontSize: '12px'
-                  }}>
-                    {t.participants}
-                  </span>
-                </td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>
-                  <span style={{
-                    padding: '4px 12px',
-                    borderRadius: '12px',
-                    backgroundColor: getStatusColor(t.status) + '20',
-                    color: getStatusColor(t.status),
-                    fontWeight: '600',
-                    fontSize: '12px'
-                  }}>
-                    {getTranslation(t.status)}
-                  </span>
-                </td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>
-                  {new Date(t.date).toLocaleDateString()}
-                </td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>
-                  <button
-                    onClick={() => handleEditTraining(t)}
-                    style={{
-                      padding: '6px 14px',
-                      backgroundColor: '#667eea',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      marginRight: '5px',
-                      transition: 'all 0.2s',
-                      fontSize: '13px'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = '#5b21b6';
-                      e.target.style.transform = 'scale(1.05)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = '#667eea';
-                      e.target.style.transform = 'scale(1)';
-                    }}
-                  >
-                    ✏️ {getTranslation('edit')}
-                  </button>
-                  <button
-                    onClick={() => handleDeleteTraining(t.id)}
-                    style={{
-                      padding: '6px 14px',
-                      backgroundColor: '#dc2626',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      fontSize: '13px'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = '#b91c1c';
-                      e.target.style.transform = 'scale(1.05)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = '#dc2626';
-                      e.target.style.transform = 'scale(1)';
-                    }}
-                  >
-                    🗑️ {getTranslation('delete')}
-                  </button>
+            {trainings.length === 0 ? (
+              <tr>
+                <td colSpan="7" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
+                  {getTranslation('noData')}
                 </td>
               </tr>
-            ))}
+            ) : (
+              trainings.map((t) => (
+                <tr key={t.id} style={{
+                  borderBottom: '1px solid #e2e8f0',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                  <td style={{ padding: '12px', fontWeight: '500' }}>
+                    {t.title?.[language] || t.title?.en || t.title}
+                  </td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    {t.type === 'online' ? '🌐' : '🏢'} {getTranslation(t.type)}
+                  </td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>{t.duration}</td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    <span style={{
+                      padding: '2px 10px',
+                      borderRadius: '12px',
+                      backgroundColor: '#dbeafe',
+                      color: '#1e40af',
+                      fontWeight: '600',
+                      fontSize: '12px'
+                    }}>
+                      {t.participants || 0}
+                    </span>
+                  </td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    <span style={{
+                      padding: '4px 12px',
+                      borderRadius: '12px',
+                      backgroundColor: getStatusColor(t.status) + '20',
+                      color: getStatusColor(t.status),
+                      fontWeight: '600',
+                      fontSize: '12px'
+                    }}>
+                      {getTranslation(t.status)}
+                    </span>
+                  </td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    {new Date(t.date).toLocaleDateString()}
+                  </td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    <button
+                      onClick={() => handleEditTraining(t)}
+                      style={{
+                        padding: '6px 14px',
+                        backgroundColor: '#667eea',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        marginRight: '5px',
+                        transition: 'all 0.2s',
+                        fontSize: '13px'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = '#5b21b6';
+                        e.target.style.transform = 'scale(1.05)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = '#667eea';
+                        e.target.style.transform = 'scale(1)';
+                      }}
+                    >
+                      ✏️ {getTranslation('edit')}
+                    </button>
+                    <button
+                      onClick={() => handleDeleteTraining(t.id)}
+                      style={{
+                        padding: '6px 14px',
+                        backgroundColor: '#dc2626',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        fontSize: '13px'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = '#b91c1c';
+                        e.target.style.transform = 'scale(1.05)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = '#dc2626';
+                        e.target.style.transform = 'scale(1)';
+                      }}
+                    >
+                      🗑️ {getTranslation('delete')}
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
-        {trainings.length === 0 && (
-          <div style={{
-            textAlign: 'center',
-            padding: '40px',
-            color: '#94a3b8'
-          }}>
-            <div style={{ fontSize: '48px', marginBottom: '10px' }}>📚</div>
-            <p>{getTranslation('noData')}</p>
-            <button
-              onClick={handleAddTraining}
-              style={{
-                marginTop: '15px',
-                padding: '8px 20px',
-                backgroundColor: '#667eea',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '14px'
-              }}
-            >
-              {getTranslation('addTraining')}
-            </button>
-          </div>
-        )}
       </div>
 
       <style>{`

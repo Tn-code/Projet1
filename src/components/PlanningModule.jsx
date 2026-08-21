@@ -1,27 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { 
+  getAllEvents, 
+  addEvent, 
+  updateEvent, 
+  deleteEvent 
+} from '../services/trainingService';
 
 const PlanningModule = ({ language }) => {
-  const [events, setEvents] = useState([
-    {
-      id: 1,
-      title: { en: '5S Workshop - Team A', fr: 'Atelier 5S - Équipe A', ar: 'ورشة عمل 5S - الفريق أ' },
-      date: '2024-01-20',
-      time: '09:00',
-      location: 'Room 101',
-      instructor: 'John Doe',
-      participants: 12
-    },
-    {
-      id: 2,
-      title: { en: '5S Assessment Session', fr: 'Session d\'Évaluation 5S', ar: 'جلسة تقييم 5S' },
-      date: '2024-01-25',
-      time: '14:00',
-      location: 'Online - Zoom',
-      instructor: 'Jane Smith',
-      participants: 8
-    }
-  ]);
-
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [newEvent, setNewEvent] = useState({
@@ -32,6 +19,19 @@ const PlanningModule = ({ language }) => {
     instructor: '',
     participants: 0
   });
+
+  useEffect(() => {
+    loadEvents();
+  }, []);
+
+  const loadEvents = async () => {
+    setLoading(true);
+    const result = await getAllEvents();
+    if (result.data) {
+      setEvents(result.data);
+    }
+    setLoading(false);
+  };
 
   const getTranslation = (key) => {
     const translations = {
@@ -51,7 +51,8 @@ const PlanningModule = ({ language }) => {
       save: { en: 'Save', fr: 'Enregistrer', ar: 'حفظ' },
       update: { en: 'Update', fr: 'Mettre à Jour', ar: 'تحديث' },
       addNew: { en: 'Add New Event', fr: 'Ajouter un Nouvel Événement', ar: 'إضافة حدث جديد' },
-      editEvent: { en: 'Edit Event', fr: 'Modifier l\'Événement', ar: 'تعديل الحدث' }
+      editEvent: { en: 'Edit Event', fr: 'Modifier l\'Événement', ar: 'تعديل الحدث' },
+      loading: { en: 'Loading...', fr: 'Chargement...', ar: 'جاري التحميل...' }
     };
     return translations[key]?.[language] || translations[key]?.en || key;
   };
@@ -77,55 +78,53 @@ const PlanningModule = ({ language }) => {
       time: event.time,
       location: event.location,
       instructor: event.instructor,
-      participants: event.participants
+      participants: event.participants || 0
     });
     setShowAddForm(true);
   };
 
-  const handleSaveEvent = () => {
+  const handleSaveEvent = async () => {
+    const eventData = {
+      title: { en: newEvent.title, fr: newEvent.title, ar: newEvent.title },
+      date: newEvent.date,
+      time: newEvent.time,
+      location: newEvent.location,
+      instructor: newEvent.instructor,
+      participants: parseInt(newEvent.participants) || 0
+    };
+
+    let result;
     if (editingId) {
-      // Update existing event
-      setEvents(events.map(event => 
-        event.id === editingId 
-          ? { 
-              ...event, 
-              title: { en: newEvent.title, fr: newEvent.title, ar: newEvent.title },
-              date: newEvent.date,
-              time: newEvent.time,
-              location: newEvent.location,
-              instructor: newEvent.instructor,
-              participants: parseInt(newEvent.participants) || 0
-            }
-          : event
-      ));
+      result = await updateEvent(editingId, eventData);
     } else {
-      // Add new event
-      const newEventObj = {
-        id: Date.now(),
-        title: { en: newEvent.title, fr: newEvent.title, ar: newEvent.title },
-        date: newEvent.date,
-        time: newEvent.time,
-        location: newEvent.location,
-        instructor: newEvent.instructor,
-        participants: parseInt(newEvent.participants) || 0
-      };
-      setEvents([...events, newEventObj]);
+      result = await addEvent(eventData);
     }
-    setShowAddForm(false);
-    setEditingId(null);
-    setNewEvent({
-      title: '',
-      date: '',
-      time: '',
-      location: '',
-      instructor: '',
-      participants: 0
-    });
+
+    if (!result.error) {
+      await loadEvents();
+      setShowAddForm(false);
+      setEditingId(null);
+      setNewEvent({
+        title: '',
+        date: '',
+        time: '',
+        location: '',
+        instructor: '',
+        participants: 0
+      });
+    } else {
+      alert('Error saving event: ' + result.error);
+    }
   };
 
-  const handleDeleteEvent = (id) => {
+  const handleDeleteEvent = async (id) => {
     if (window.confirm('Are you sure you want to delete this event?')) {
-      setEvents(events.filter(event => event.id !== id));
+      const result = await deleteEvent(id);
+      if (!result.error) {
+        await loadEvents();
+      } else {
+        alert('Error deleting event: ' + result.error);
+      }
     }
   };
 
@@ -141,6 +140,14 @@ const PlanningModule = ({ language }) => {
       participants: 0
     });
   };
+
+  if (loading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '40px', color: '#5a6a7a' }}>
+        {getTranslation('loading')}
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: '20px' }}>
@@ -361,112 +368,95 @@ const PlanningModule = ({ language }) => {
             </tr>
           </thead>
           <tbody>
-            {events.map((event) => (
-              <tr key={event.id} style={{
-                borderBottom: '1px solid #e2e8f0',
-                transition: 'background-color 0.2s'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-                <td style={{ padding: '12px', fontWeight: '500' }}>
-                  {event.title[language] || event.title.en}
-                </td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>
-                  {new Date(event.date).toLocaleDateString()}
-                </td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>{event.time}</td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>{event.location}</td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>{event.instructor}</td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>
-                  <span style={{
-                    padding: '2px 10px',
-                    borderRadius: '12px',
-                    backgroundColor: '#dbeafe',
-                    color: '#1e40af',
-                    fontWeight: '600',
-                    fontSize: '12px'
-                  }}>
-                    {event.participants}
-                  </span>
-                </td>
-                <td style={{ padding: '12px', textAlign: 'center' }}>
-                  <button
-                    onClick={() => handleEditEvent(event)}
-                    style={{
-                      padding: '6px 14px',
-                      backgroundColor: '#667eea',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      marginRight: '5px',
-                      transition: 'all 0.2s',
-                      fontSize: '13px'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = '#5b21b6';
-                      e.target.style.transform = 'scale(1.05)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = '#667eea';
-                      e.target.style.transform = 'scale(1)';
-                    }}
-                  >
-                    ✏️ {getTranslation('edit')}
-                  </button>
-                  <button
-                    onClick={() => handleDeleteEvent(event.id)}
-                    style={{
-                      padding: '6px 14px',
-                      backgroundColor: '#dc2626',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      fontSize: '13px'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = '#b91c1c';
-                      e.target.style.transform = 'scale(1.05)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = '#dc2626';
-                      e.target.style.transform = 'scale(1)';
-                    }}
-                  >
-                    🗑️ {getTranslation('delete')}
-                  </button>
+            {events.length === 0 ? (
+              <tr>
+                <td colSpan="7" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
+                  {getTranslation('noData')}
                 </td>
               </tr>
-            ))}
+            ) : (
+              events.map((event) => (
+                <tr key={event.id} style={{
+                  borderBottom: '1px solid #e2e8f0',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                  <td style={{ padding: '12px', fontWeight: '500' }}>
+                    {event.title?.[language] || event.title?.en || event.title}
+                  </td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    {new Date(event.date).toLocaleDateString()}
+                  </td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>{event.time}</td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>{event.location}</td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>{event.instructor}</td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    <span style={{
+                      padding: '2px 10px',
+                      borderRadius: '12px',
+                      backgroundColor: '#dbeafe',
+                      color: '#1e40af',
+                      fontWeight: '600',
+                      fontSize: '12px'
+                    }}>
+                      {event.participants || 0}
+                    </span>
+                  </td>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                    <button
+                      onClick={() => handleEditEvent(event)}
+                      style={{
+                        padding: '6px 14px',
+                        backgroundColor: '#667eea',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        marginRight: '5px',
+                        transition: 'all 0.2s',
+                        fontSize: '13px'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = '#5b21b6';
+                        e.target.style.transform = 'scale(1.05)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = '#667eea';
+                        e.target.style.transform = 'scale(1)';
+                      }}
+                    >
+                      ✏️ {getTranslation('edit')}
+                    </button>
+                    <button
+                      onClick={() => handleDeleteEvent(event.id)}
+                      style={{
+                        padding: '6px 14px',
+                        backgroundColor: '#dc2626',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        fontSize: '13px'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = '#b91c1c';
+                        e.target.style.transform = 'scale(1.05)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = '#dc2626';
+                        e.target.style.transform = 'scale(1)';
+                      }}
+                    >
+                      🗑️ {getTranslation('delete')}
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
-        {events.length === 0 && (
-          <div style={{
-            textAlign: 'center',
-            padding: '40px',
-            color: '#94a3b8'
-          }}>
-            <div style={{ fontSize: '48px', marginBottom: '10px' }}>📅</div>
-            <p>{getTranslation('noData')}</p>
-            <button
-              onClick={handleAddEvent}
-              style={{
-                marginTop: '15px',
-                padding: '8px 20px',
-                backgroundColor: '#667eea',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '14px'
-              }}
-            >
-              {getTranslation('addEvent')}
-            </button>
-          </div>
-        )}
       </div>
 
       <style>{`
