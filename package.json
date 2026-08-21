@@ -8,7 +8,7 @@
     "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview",
-    "cloudflare-build": "./build.sh"
+    "cloudflare-build": "chmod +x build.sh && ./build.sh"
   },
   "dependencies": {
     "firebase": "^10.7.1",

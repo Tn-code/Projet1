@@ -1,5 +1,9 @@
-name = "5s-game"
+name = "learn5s"
 pages_build_output_dir = "dist"
 
-[env.production]
-vars = { NODE_VERSION = "18" }
+[build]
+command = "npm run cloudflare-build"
+
+[build.environment]
+NODE_VERSION = "18"
+NPM_VERSION = "9"
