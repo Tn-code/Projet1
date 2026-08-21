@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
@@ -34,7 +34,6 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
   const [assessments, setAssessments] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState('week');
 
   useEffect(() => {
     loadData();
@@ -59,8 +58,6 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
       totalPoints: { en: 'Total Points', fr: 'Points Totaux', ar: 'إجمالي النقاط' },
       principlesLearned: { en: 'Principles Learned', fr: 'Principes Appris', ar: 'المبادئ المتعلمة' },
       progress: { en: 'Completion', fr: 'Progression', ar: 'الإنجاز' },
-      rank: { en: 'Rank', fr: 'Rang', ar: 'الترتيب' },
-      memberSince: { en: 'Member Since', fr: 'Membre Depuis', ar: 'عضو منذ' },
       nextMilestone: { en: 'Next Milestone', fr: 'Prochain Jalon', ar: 'المعالم القادمة' },
       principles: { en: 'principles', fr: 'principes', ar: 'مبادئ' },
       assessment: { en: '📋 Assessments', fr: '📋 Évaluations', ar: '📋 التقييمات' },
@@ -74,8 +71,6 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
       principlesPerformance: { en: 'Principles Performance', fr: 'Performance par Principe', ar: 'الأداء حسب المبدأ' },
       scoreDistribution: { en: 'Score Distribution', fr: 'Distribution des Scores', ar: 'توزيع النقاط' },
       recentActivity: { en: 'Recent Activity', fr: 'Activité Récente', ar: 'النشاط الأخير' },
-      exportReport: { en: '📄 Export Report', fr: '📄 Exporter le Rapport', ar: '📄 تصدير التقرير' },
-      refresh: { en: '🔄 Refresh', fr: '🔄 Rafraîchir', ar: '🔄 تحديث' },
       totalAssessments: { en: 'Total Assessments', fr: 'Total Évaluations', ar: 'إجمالي التقييمات' },
       averageScore: { en: 'Average Score', fr: 'Score Moyen', ar: 'متوسط النتيجة' }
     };
@@ -84,11 +79,11 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
 
   // Level calculation
   const getLevel = () => {
-    if (totalScore >= 80) return { name: 'Expert', emoji: '🏆', color: '#8b5cf6' };
-    if (totalScore >= 60) return { name: 'Advanced', emoji: '🥇', color: '#667eea' };
-    if (totalScore >= 40) return { name: 'Intermediate', emoji: '🥈', color: '#f59e0b' };
-    if (totalScore >= 20) return { name: 'Beginner', emoji: '🥉', color: '#22c55e' };
-    return { name: 'Novice', emoji: '🌱', color: '#94a3b8' };
+    if (totalScore >= 80) return { name: 'Expert', emoji: '🏆', color: '#8b5cf6', description: 'Master of 5S' };
+    if (totalScore >= 60) return { name: 'Advanced', emoji: '🥇', color: '#667eea', description: 'Advanced Practitioner' };
+    if (totalScore >= 40) return { name: 'Intermediate', emoji: '🥈', color: '#f59e0b', description: 'Growing Knowledge' };
+    if (totalScore >= 20) return { name: 'Beginner', emoji: '🥉', color: '#22c55e', description: 'Starting Your Journey' };
+    return { name: 'Novice', emoji: '🌱', color: '#94a3b8', description: 'Just Beginning' };
   };
 
   // Chart data preparation
@@ -96,8 +91,8 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
     const sorted = [...assessments].sort((a, b) => 
       new Date(a.createdAt) - new Date(b.createdAt)
     );
-    const labels = sorted.map(a => new Date(a.createdAt).toLocaleDateString());
-    const scores = sorted.map(a => a.score);
+    const labels = sorted.slice(-10).map(a => new Date(a.createdAt).toLocaleDateString());
+    const scores = sorted.slice(-10).map(a => a.score || 0);
     return { labels, scores };
   };
 
@@ -136,16 +131,26 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
 
   const getScoreDistribution = () => {
     const distribution = { '0-5': 0, '6-10': 0, '11-15': 0 };
+    const colors = { '0-5': '#dc2626', '6-10': '#f59e0b', '11-15': '#22c55e' };
     assessments.forEach(a => {
-      if (a.score <= 5) distribution['0-5']++;
-      else if (a.score <= 10) distribution['6-10']++;
+      const score = a.score || 0;
+      if (score <= 5) distribution['0-5']++;
+      else if (score <= 10) distribution['6-10']++;
       else distribution['11-15']++;
     });
     return {
-      labels: ['0-5', '6-10', '11-15'],
+      labels: ['0-5 (Low)', '6-10 (Medium)', '11-15 (High)'],
       data: Object.values(distribution),
       colors: ['#dc2626', '#f59e0b', '#22c55e']
     };
+  };
+
+  const getRecentActivity = () => {
+    return assessments.slice(-5).reverse().map(a => ({
+      name: `${a.prenom || 'User'} ${a.nom || ''}`,
+      score: a.score || 0,
+      date: a.createdAt ? new Date(a.createdAt).toLocaleDateString() : 'N/A'
+    }));
   };
 
   const level = getLevel();
@@ -153,6 +158,7 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
   const trend = getPerformanceTrend();
   const principlesData = getPrinciplesData();
   const distribution = getScoreDistribution();
+  const recentActivity = getRecentActivity();
 
   if (loading) {
     return (
@@ -204,7 +210,8 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '12px'
+          gap: '12px',
+          flexWrap: 'wrap'
         }}>
           <div style={{
             padding: '8px 20px',
@@ -413,37 +420,40 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
       }}>
         {/* Performance Trend */}
         <div className="professional-card">
-          <h4 style={{ marginBottom: '15px', color: '#1a2a3a' }}>
+          <h4 style={{ marginBottom: '15px', color: '#1a2a3a', fontSize: '16px' }}>
             📈 {getTranslation('performance')}
           </h4>
           {trend.labels.length > 0 ? (
-            <Line
-              data={{
-                labels: trend.labels.slice(-10),
-                datasets: [{
-                  label: 'Score',
-                  data: trend.scores.slice(-10),
-                  borderColor: '#667eea',
-                  backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                  fill: true,
-                  tension: 0.4
-                }]
-              }}
-              options={{
-                responsive: true,
-                plugins: {
-                  legend: { display: false }
-                },
-                scales: {
-                  y: {
-                    min: 0,
-                    max: 15
+            <div style={{ height: '200px' }}>
+              <Line
+                data={{
+                  labels: trend.labels,
+                  datasets: [{
+                    label: 'Score',
+                    data: trend.scores,
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                  }]
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: { display: false }
+                  },
+                  scales: {
+                    y: {
+                      min: 0,
+                      max: 15
+                    }
                   }
-                }
-              }}
-            />
+                }}
+              />
+            </div>
           ) : (
-            <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>
+            <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px' }}>
               No data available yet
             </p>
           )}
@@ -451,98 +461,125 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
 
         {/* Principles Performance */}
         <div className="professional-card">
-          <h4 style={{ marginBottom: '15px', color: '#1a2a3a' }}>
+          <h4 style={{ marginBottom: '15px', color: '#1a2a3a', fontSize: '16px' }}>
             📊 {getTranslation('principlesPerformance')}
           </h4>
           {principlesData.data.some(d => d > 0) ? (
-            <Bar
-              data={{
-                labels: principlesData.labels,
-                datasets: [{
-                  label: 'Performance (%)',
-                  data: principlesData.data,
-                  backgroundColor: principlesData.colors,
-                  borderRadius: 8
-                }]
-              }}
-              options={{
-                responsive: true,
-                plugins: {
-                  legend: { display: false }
-                },
-                scales: {
-                  y: {
-                    max: 100,
-                    beginAtZero: true
+            <div style={{ height: '200px' }}>
+              <Bar
+                data={{
+                  labels: principlesData.labels,
+                  datasets: [{
+                    label: 'Performance (%)',
+                    data: principlesData.data,
+                    backgroundColor: principlesData.colors,
+                    borderRadius: 8
+                  }]
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: { display: false }
+                  },
+                  scales: {
+                    y: {
+                      max: 100,
+                      beginAtZero: true
+                    }
                   }
-                }
-              }}
-            />
+                }}
+              />
+            </div>
           ) : (
-            <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>
+            <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px' }}>
+              No data available yet
+            </p>
+          )}
+        </div>
+
+        {/* Score Distribution */}
+        <div className="professional-card">
+          <h4 style={{ marginBottom: '15px', color: '#1a2a3a', fontSize: '16px' }}>
+            🎯 {getTranslation('scoreDistribution')}
+          </h4>
+          {distribution.data.some(d => d > 0) ? (
+            <div style={{ height: '200px', display: 'flex', justifyContent: 'center' }}>
+              <Doughnut
+                data={{
+                  labels: distribution.labels,
+                  datasets: [{
+                    data: distribution.data,
+                    backgroundColor: distribution.colors,
+                    borderWidth: 0
+                  }]
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      position: 'bottom',
+                      labels: {
+                        padding: 10,
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                      }
+                    }
+                  }
+                }}
+              />
+            </div>
+          ) : (
+            <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px' }}>
               No data available yet
             </p>
           )}
         </div>
       </div>
 
-      {/* Quick Stats - 3 columns */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-        gap: '15px',
-        marginBottom: '20px'
-      }}>
-        <div className="professional-card" style={{
-          padding: '18px 20px',
-          textAlign: 'center',
-          border: '1px solid #e2e8f0'
-        }}>
-          <div style={{ fontSize: '32px', marginBottom: '8px' }}>📋</div>
-          <div style={{ fontSize: '14px', fontWeight: '600', color: '#1a2a3a' }}>
-            {getTranslation('assessment')}
+      {/* Recent Activity */}
+      <div className="professional-card" style={{ marginBottom: '20px' }}>
+        <h4 style={{ marginBottom: '15px', color: '#1a2a3a', fontSize: '16px' }}>
+          📋 {getTranslation('recentActivity')}
+        </h4>
+        {recentActivity.length > 0 ? (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ backgroundColor: '#f8fafc' }}>
+                  <th style={{ padding: '10px', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>User</th>
+                  <th style={{ padding: '10px', textAlign: 'center', borderBottom: '2px solid #e2e8f0' }}>Score</th>
+                  <th style={{ padding: '10px', textAlign: 'center', borderBottom: '2px solid #e2e8f0' }}>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentActivity.map((activity, index) => (
+                  <tr key={index} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                    <td style={{ padding: '10px', fontWeight: '500' }}>{activity.name}</td>
+                    <td style={{ padding: '10px', textAlign: 'center' }}>
+                      <span style={{
+                        padding: '2px 10px',
+                        borderRadius: '12px',
+                        backgroundColor: activity.score >= 12 ? '#d1fae5' : (activity.score >= 8 ? '#fef3c7' : '#fee2e2'),
+                        color: activity.score >= 12 ? '#065f46' : (activity.score >= 8 ? '#92400e' : '#991b1b'),
+                        fontWeight: '600',
+                        fontSize: '12px'
+                      }}>
+                        {activity.score}/15
+                      </span>
+                    </td>
+                    <td style={{ padding: '10px', textAlign: 'center' }}>{activity.date}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <div style={{ fontSize: '24px', fontWeight: '700', color: '#667eea', marginTop: '4px' }}>
-            {assessments.length}
-          </div>
-          <div style={{ fontSize: '12px', color: '#5a6a7a' }}>
-            {assessments.length > 0 ? getTranslation('completed') : getTranslation('pending')}
-          </div>
-        </div>
-
-        <div className="professional-card" style={{
-          padding: '18px 20px',
-          textAlign: 'center',
-          border: '1px solid #e2e8f0'
-        }}>
-          <div style={{ fontSize: '32px', marginBottom: '8px' }}>📝</div>
-          <div style={{ fontSize: '14px', fontWeight: '600', color: '#1a2a3a' }}>
-            {getTranslation('quiz')}
-          </div>
-          <div style={{ fontSize: '24px', fontWeight: '700', color: '#f59e0b', marginTop: '4px' }}>
-            {completedPrinciples * 10}
-          </div>
-          <div style={{ fontSize: '12px', color: '#5a6a7a' }}>
-            {getTranslation('accuracy')}: {completedPrinciples > 0 ? '80%' : '0%'}
-          </div>
-        </div>
-
-        <div className="professional-card" style={{
-          padding: '18px 20px',
-          textAlign: 'center',
-          border: '1px solid #e2e8f0'
-        }}>
-          <div style={{ fontSize: '32px', marginBottom: '8px' }}>📅</div>
-          <div style={{ fontSize: '14px', fontWeight: '600', color: '#1a2a3a' }}>
-            {getTranslation('memberSince')}
-          </div>
-          <div style={{ fontSize: '18px', fontWeight: '700', color: '#22c55e', marginTop: '4px' }}>
-            {new Date(user?.metadata?.creationTime || Date.now()).toLocaleDateString()}
-          </div>
-          <div style={{ fontSize: '12px', color: '#5a6a7a' }}>
-            {getTranslation('rank')}: {completedPrinciples > 0 ? 'Active' : 'New'}
-          </div>
-        </div>
+        ) : (
+          <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>
+            No recent activity
+          </p>
+        )}
       </div>
 
       <style>{`
@@ -555,6 +592,7 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
           background: white;
           border-radius: 12px;
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+          padding: 20px;
         }
         .professional-card:hover {
           transform: translateY(-4px);

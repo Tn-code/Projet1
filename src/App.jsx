@@ -12,7 +12,6 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Admin emails list
   const ADMIN_EMAILS = [
     'houssine.trabelsi6@gmail.com',
     'admin@5sgame.com'
@@ -35,7 +34,6 @@ const App = () => {
     return () => unsubscribe();
   }, []);
 
-  // Set RTL for Arabic
   useEffect(() => {
     if (language === 'ar') {
       document.documentElement.dir = 'rtl';

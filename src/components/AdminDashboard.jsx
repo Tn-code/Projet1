@@ -1,16 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  getAllUsers, 
-  getAllAssessments, 
-  getAssessmentStats,
-  getUserAssessments 
-} from '../services/adminService';
+import { getAllUsers, getAllAssessments, getAssessmentStats } from '../services/adminService';
 import { logout } from '../services/authService';
 import Formation5S from './Formation5S';
 import ProgressionPlan from './ProgressionPlan';
-import AnalyticsDashboard from './AnalyticsDashboard';
-import AdvancedReports from './AdvancedReports';
-import AIRecommendations from './AIRecommendations';
 import AdminModule from './AdminModule';
 
 const AdminDashboard = ({ user, onLogout, language }) => {
@@ -18,9 +10,6 @@ const AdminDashboard = ({ user, onLogout, language }) => {
   const [assessments, setAssessments] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [userAssessments, setUserAssessments] = useState([]);
-  const [showUserDetails, setShowUserDetails] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -48,16 +37,11 @@ const AdminDashboard = ({ user, onLogout, language }) => {
       overview: { en: '📊 Overview', fr: '📊 Aperçu', ar: '📊 نظرة عامة' },
       formation: { en: '📚 Formation 5S', fr: '📚 Formation 5S', ar: '📚 تدريب 5S' },
       progression: { en: '📈 Progression', fr: '📈 Progression', ar: '📈 التقدم' },
-      analytics: { en: '📊 Analytics', fr: '📊 Analytique', ar: '📊 التحليلات' },
-      reports: { en: '📋 Reports', fr: '📋 Rapports', ar: '📋 التقارير' },
-      ai: { en: '🤖 AI', fr: '🤖 IA', ar: '🤖 الذكاء الاصطناعي' },
       adminModule: { en: '🏢 Admin', fr: '🏢 Admin', ar: '🏢 الإدارة' },
       totalUsers: { en: 'Total Users', fr: 'Total Utilisateurs', ar: 'إجمالي المستخدمين' },
       totalAssessments: { en: 'Total Assessments', fr: 'Total Évaluations', ar: 'إجمالي التقييمات' },
       averageScore: { en: 'Average Score', fr: 'Score Moyen', ar: 'متوسط النتيجة' },
       search: { en: 'Search...', fr: 'Rechercher...', ar: 'بحث...' },
-      userDetails: { en: 'User Details', fr: 'Détails Utilisateur', ar: 'تفاصيل المستخدم' },
-      close: { en: 'Close', fr: 'Fermer', ar: 'إغلاق' },
       noData: { en: 'No data available', fr: 'Aucune donnée disponible', ar: 'لا توجد بيانات' },
       principleBreakdown: { en: 'Principle Breakdown', fr: 'Répartition par Principe', ar: 'توزيع المبادئ' },
       score: { en: 'Score', fr: 'Score', ar: 'النتيجة' },
@@ -67,8 +51,6 @@ const AdminDashboard = ({ user, onLogout, language }) => {
       email: { en: 'Email', fr: 'Email', ar: 'البريد الإلكتروني' },
       completed: { en: 'Completed Principles', fr: 'Principes Complétés', ar: 'المبادئ المكتملة' },
       logout: { en: 'Logout', fr: 'Déconnexion', ar: 'تسجيل الخروج' },
-      details: { en: 'Details', fr: 'Détails', ar: 'تفاصيل' },
-      exportPDF: { en: '📄 Export PDF', fr: '📄 Exporter PDF', ar: '📄 تصدير PDF' },
       exportAllPDF: { en: '📄 Export All Results', fr: '📄 Exporter Tous les Résultats', ar: '📄 تصدير جميع النتائج' },
       refresh: { en: 'Refresh Data', fr: 'Rafraîchir les Données', ar: 'تحديث البيانات' },
       totalPoints: { en: 'Total Points', fr: 'Points Totaux', ar: 'إجمالي النقاط' }
@@ -76,10 +58,191 @@ const AdminDashboard = ({ user, onLogout, language }) => {
     return translations[key]?.[language] || translations[key]?.en || key;
   };
 
-  // Generate detailed assessment HTML for PDF
-  const generateDetailedAssessmentHTML = (assessment) => {
-    // ... keep existing generateDetailedAssessmentHTML function ...
-    return `<html>...</html>`;
+  // Generate detailed assessment HTML for PDF - FIXED VERSION
+  const generateAssessmentPDFHTML = (assessment) => {
+    if (!assessment) return '<h1>No assessment data</h1>';
+
+    const principleNames = {
+      seiri: { en: 'Seiri (Sort)', fr: 'Seiri (Trier)', ar: 'سيري (الفرز)' },
+      seiton: { en: 'Seiton (Set in order)', fr: 'Seiton (Ranger)', ar: 'سيتون (الترتيب)' },
+      seiso: { en: 'Seiso (Shine)', fr: 'Seiso (Nettoyer)', ar: 'سيسو (التنظيف)' },
+      seiketsu: { en: 'Seiketsu (Standardize)', fr: 'Seiketsu (Standardiser)', ar: 'سيكيتسو (التوحيد)' },
+      shitsuke: { en: 'Shitsuke (Sustain)', fr: 'Shitsuke (Maintenir)', ar: 'شيتسوكي (الاستدامة)' }
+    };
+
+    let html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>5S Assessment Report</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 0; padding: 30px; background: #f8fafc; }
+          .header { text-align: center; padding: 25px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 12px; margin-bottom: 25px; }
+          .header h1 { margin: 0; font-size: 28px; }
+          .header p { margin: 5px 0; opacity: 0.9; }
+          .section { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+          .section-title { font-size: 18px; font-weight: bold; color: #667eea; border-bottom: 2px solid #667eea; padding-bottom: 8px; margin-bottom: 15px; }
+          .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #f8fafc; padding: 15px; border-radius: 8px; }
+          .score-badge { display: inline-block; padding: 8px 20px; border-radius: 25px; font-weight: bold; font-size: 16px; }
+          .score-high { background: #d1fae5; color: #065f46; }
+          .score-medium { background: #fef3c7; color: #92400e; }
+          .score-low { background: #fee2e2; color: #991b1b; }
+          table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+          th, td { padding: 10px 12px; border: 1px solid #e2e8f0; text-align: left; }
+          th { background: #f8fafc; font-weight: 600; color: #1a2a3a; }
+          .correct { color: #16a34a; font-weight: bold; }
+          .incorrect { color: #dc2626; font-weight: bold; }
+          .principle-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin: 10px 0; }
+          .principle-header { display: flex; justify-content: space-between; align-items: center; }
+          .progress-bar { width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin: 5px 0; }
+          .progress-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+          .footer { text-align: center; padding: 20px; color: #94a3b8; font-size: 12px; border-top: 1px solid #e2e8f0; margin-top: 20px; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>📋 5S Assessment Report</h1>
+          <p>Generated: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
+        </div>
+
+        <div class="section">
+          <div class="section-title">👤 Candidate Information</div>
+          <div class="info-grid">
+            <div><strong>Name:</strong> ${assessment.prenom || 'N/A'} ${assessment.nom || 'N/A'}</div>
+            <div><strong>Matricule:</strong> ${assessment.matricule || 'N/A'}</div>
+            <div><strong>Email:</strong> ${assessment.email || 'N/A'}</div>
+            <div><strong>Date:</strong> ${assessment.createdAt ? new Date(assessment.createdAt).toLocaleDateString() : 'N/A'}</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">📊 Overall Score</div>
+          <div style="text-align:center;padding:20px;">
+            <div style="font-size:48px;font-weight:bold;color:#667eea;">${assessment.score || 0}/15</div>
+            <div style="font-size:18px;color:#475569;">${Math.round(((assessment.score || 0)/15)*100)}%</div>
+            <div style="margin-top:10px;">
+              <span class="score-badge ${assessment.score >= 12 ? 'score-high' : (assessment.score >= 8 ? 'score-medium' : 'score-low')}">
+                ${assessment.score >= 12 ? '✅ Excellent' : (assessment.score >= 8 ? '📊 Good' : '📈 Needs Improvement')}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">📊 Per Principle Breakdown</div>
+    `;
+
+    const principleList = ['seiri', 'seiton', 'seiso', 'seiketsu', 'shitsuke'];
+    principleList.forEach(p => {
+      const result = assessment.results?.[p];
+      if (result) {
+        const pct = Math.round((result.correct / result.total) * 100);
+        const color = pct >= 80 ? '#22c55e' : (pct >= 60 ? '#f59e0b' : '#dc2626');
+        html += `
+          <div class="principle-card">
+            <div class="principle-header">
+              <span style="font-weight:600;">${principleNames[p]?.[language] || p}</span>
+              <span style="font-weight:bold;color:${color};">${result.correct}/${result.total} (${pct}%)</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:${pct}%;background:${color};"></div>
+            </div>
+          </div>
+        `;
+      }
+    });
+
+    // Questions and answers
+    const allQuestions = [
+      { id: 's1', q: 'What is the first step in implementing Seiri?' },
+      { id: 's2', q: 'What should you do with items that are not needed in Seiri?' },
+      { id: 's3', q: 'What is the red tag technique used for in Seiri?' },
+      { id: 't1', q: 'What is the main goal of Seiton?' },
+      { id: 't2', q: 'What tool is used in Seiton for visual organization?' },
+      { id: 't3', q: 'What is the "place for everything" principle in Seiton?' },
+      { id: 'c1', q: 'What is the dual purpose of Seiso?' },
+      { id: 'c2', q: 'How often should Seiso be performed?' },
+      { id: 'c3', q: 'What can cleaning reveal during Seiso?' },
+      { id: 'd1', q: 'What is the purpose of Seiketsu?' },
+      { id: 'd2', q: 'What is a Standard Operating Procedure (SOP)?' },
+      { id: 'd3', q: 'Why is standardization important in 5S?' },
+      { id: 'u1', q: 'What is the main focus of Shitsuke?' },
+      { id: 'u2', q: 'How do you sustain 5S practices?' },
+      { id: 'u3', q: 'What makes Shitsuke different from other 5S principles?' }
+    ];
+
+    const optionsList = [
+      ['Identify all items', 'Clean the area', 'Organize tools', 'Create labels'],
+      ['Keep them in storage', 'Remove them', 'Organize them', 'Label them'],
+      ['Marking items to evaluate', 'Cleaning schedule', 'Safety signs', 'Tool organization'],
+      ['Organize for easy access', 'Clean the workplace', 'Remove waste', 'Create standards'],
+      ['Shadow boards', 'Cleaning supplies', 'Red tags', 'Safety equipment'],
+      ['Designated location', 'Cleaned daily', 'Labeled', 'Removed'],
+      ['Clean and inspect', 'Organize and label', 'Sort and remove', 'Standardize'],
+      ['Daily', 'Weekly', 'Monthly', 'Annually'],
+      ['Problems and defects', 'Organized tools', 'Clean surfaces', 'Labeled items'],
+      ['Create standards', 'Clean the area', 'Organize tools', 'Remove waste'],
+      ['Written instructions', 'Cleaning schedule', 'Tool inventory', 'Safety rules'],
+      ['Ensures consistency', 'Saves time', 'Reduces cost', 'All of the above'],
+      ['Maintain discipline', 'Clean the area', 'Organize tools', 'Create standards'],
+      ['Regular audits', 'One-time cleaning', 'Organizing once', 'Removing items'],
+      ['Sustains all principles', 'First step', 'Easiest', 'Optional']
+    ];
+
+    const correctAnswers = [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0];
+
+    html += `
+        </div>
+
+        <div class="section">
+          <div class="section-title">📝 Detailed Answers</div>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Question</th>
+                <th>Your Answer</th>
+                <th>Correct Answer</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+    `;
+
+    allQuestions.forEach((q, idx) => {
+      const userAnswer = assessment.answers?.[q.id];
+      const correct = correctAnswers[idx];
+      const isCorrect = userAnswer === correct;
+      const opts = optionsList[idx] || ['Option A', 'Option B', 'Option C', 'Option D'];
+      
+      html += `
+        <tr>
+          <td style="text-align:center;">${idx + 1}</td>
+          <td style="font-size:12px;">${q.q}</td>
+          <td style="font-size:12px;">${userAnswer !== undefined ? opts[userAnswer] || 'Not answered' : 'Not answered'}</td>
+          <td style="font-size:12px;">${opts[correct]}</td>
+          <td style="text-align:center;">
+            <span class="${isCorrect ? 'correct' : 'incorrect'}">${isCorrect ? '✅' : '❌'}</span>
+          </td>
+        </tr>
+      `;
+    });
+
+    html += `
+            </tbody>
+          </table>
+        </div>
+
+        <div class="footer">
+          <p>Generated by 5S Assessment System • © ${new Date().getFullYear()} WKW Automotive</p>
+          <p>Department: Amélioration Contenue WKW Tunisia</p>
+        </div>
+      </body>
+      </html>
+    `;
+
+    return html;
   };
 
   // Export PDF function
@@ -107,26 +270,81 @@ const AdminDashboard = ({ user, onLogout, language }) => {
     }
   };
 
-  // Export individual assessment PDF
-  const exportDetailedPDF = (assessment) => {
-    const html = generateDetailedAssessmentHTML(assessment);
-    const filename = `5S-Assessment-${assessment.prenom}-${assessment.nom}-${new Date().toISOString().split('T')[0]}.pdf`;
+  // Export individual assessment - FIXED
+  const exportIndividualPDF = (assessment) => {
+    if (!assessment) {
+      alert('No assessment data to export');
+      return;
+    }
+    const html = generateAssessmentPDFHTML(assessment);
+    const filename = `5S-Assessment-${assessment.prenom || 'user'}-${assessment.nom || 'unknown'}-${new Date().toISOString().split('T')[0]}.pdf`;
     handleExportPDF(html, filename);
   };
 
-  // Export all assessments PDF
-  const exportAllDetailedPDF = () => {
-    let allHtml = `<h1>All Assessments</h1>`;
-    assessments.slice(0, 50).forEach((a, index) => {
+  // Export all assessments - FIXED
+  const exportAllPDF = () => {
+    if (assessments.length === 0) {
+      alert('No assessments available to export.');
+      return;
+    }
+
+    let allHtml = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>All 5S Assessments Report</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 0; padding: 30px; background: #f8fafc; }
+          .header { text-align: center; padding: 25px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 12px; margin-bottom: 25px; }
+          .header h1 { margin: 0; font-size: 28px; }
+          .header p { margin: 5px 0; opacity: 0.9; }
+          .header .count { margin-top: 10px; display: inline-block; padding: 5px 20px; background: rgba(255,255,255,0.2); border-radius: 20px; }
+          .assessment-block { background: white; border-radius: 12px; padding: 25px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); page-break-after: always; }
+          .assessment-title { font-size: 20px; font-weight: bold; color: #1a2a3a; border-bottom: 2px solid #667eea; padding-bottom: 10px; margin-bottom: 20px; }
+          .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+          .score-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; }
+          .score-high { background: #d1fae5; color: #065f46; }
+          .score-medium { background: #fef3c7; color: #92400e; }
+          .score-low { background: #fee2e2; color: #991b1b; }
+          .footer { text-align: center; padding: 20px; color: #94a3b8; font-size: 12px; border-top: 1px solid #e2e8f0; margin-top: 20px; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>📊 All 5S Assessments Report</h1>
+          <p>Generated: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
+          <div class="count">Total Assessments: ${assessments.length}</div>
+        </div>
+    `;
+
+    assessments.forEach((a, index) => {
       allHtml += `
-        <div style="border:1px solid #ddd;padding:15px;margin:10px 0;">
-          <h3>Assessment #${index + 1}</h3>
-          <p><strong>Name:</strong> ${a.prenom} ${a.nom}</p>
-          <p><strong>Matricule:</strong> ${a.matricule}</p>
-          <p><strong>Score:</strong> ${a.score}/15</p>
+        <div class="assessment-block">
+          <div class="assessment-title">Assessment #${index + 1}</div>
+          <div class="info-grid">
+            <div><strong>Name:</strong> ${a.prenom || 'N/A'} ${a.nom || 'N/A'}</div>
+            <div><strong>Matricule:</strong> ${a.matricule || 'N/A'}</div>
+            <div><strong>Score:</strong> ${a.score || 0}/15</div>
+          </div>
+          <div style="text-align:center;padding:10px;">
+            <span class="score-badge ${a.score >= 12 ? 'score-high' : (a.score >= 8 ? 'score-medium' : 'score-low')}">
+              ${a.score >= 12 ? '✅ Excellent' : (a.score >= 8 ? '📊 Good' : '📈 Needs Improvement')}
+            </span>
+          </div>
         </div>
       `;
     });
+
+    allHtml += `
+        <div class="footer">
+          <p>Generated by 5S Assessment System • © ${new Date().getFullYear()} WKW Automotive</p>
+          <p>Department: Amélioration Contenue WKW Tunisia</p>
+        </div>
+      </body>
+      </html>
+    `;
+
     handleExportPDF(allHtml, `All-5S-Assessments-${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
@@ -150,8 +368,20 @@ const AdminDashboard = ({ user, onLogout, language }) => {
         flexDirection: 'column',
         gap: '20px'
       }}>
-        <div className="spinner" />
+        <div style={{
+          width: '40px',
+          height: '40px',
+          border: '4px solid #e2e8f0',
+          borderTop: '4px solid #667eea',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }} />
         <p style={{ color: '#5a6a7a' }}>Loading admin dashboard...</p>
+        <style>{`
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
       </div>
     );
   }
@@ -168,367 +398,254 @@ const AdminDashboard = ({ user, onLogout, language }) => {
           completedPrinciples={user?.completedPrinciples || []}
           score={user?.score || 0}
         />;
-      case 'analytics':
-        return <AnalyticsDashboard language={language} />;
-      case 'reports':
-        return <AdvancedReports language={language} />;
-      case 'ai':
-        return <AIRecommendations user={user} language={language} />;
       case 'adminModule':
         return <AdminModule language={language} />;
       case 'overview':
       default:
-        return renderOverview();
+        return (
+          <div>
+            {/* Statistics Cards */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '15px',
+              marginBottom: '25px'
+            }}>
+              <div style={{
+                padding: '20px',
+                background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                borderRadius: '12px',
+                color: 'white'
+              }}>
+                <div style={{ fontSize: '12px', opacity: 0.8 }}>{getTranslation('totalUsers')}</div>
+                <div style={{ fontSize: '28px', fontWeight: 'bold' }}>{users.length}</div>
+              </div>
+              <div style={{
+                padding: '20px',
+                background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                borderRadius: '12px',
+                color: 'white'
+              }}>
+                <div style={{ fontSize: '12px', opacity: 0.8 }}>{getTranslation('totalAssessments')}</div>
+                <div style={{ fontSize: '28px', fontWeight: 'bold' }}>{assessments.length}</div>
+              </div>
+              <div style={{
+                padding: '20px',
+                background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                borderRadius: '12px',
+                color: 'white'
+              }}>
+                <div style={{ fontSize: '12px', opacity: 0.8 }}>{getTranslation('averageScore')}</div>
+                <div style={{ fontSize: '28px', fontWeight: 'bold' }}>{stats?.averageScore || 0}/15</div>
+              </div>
+              <div style={{
+                padding: '20px',
+                background: 'linear-gradient(135deg, #ec4899, #8b5cf6)',
+                borderRadius: '12px',
+                color: 'white'
+              }}>
+                <div style={{ fontSize: '12px', opacity: 0.8 }}>{getTranslation('totalPoints')}</div>
+                <div style={{ fontSize: '28px', fontWeight: 'bold' }}>{stats?.totalScore || 0}</div>
+              </div>
+            </div>
+
+            {/* Principle Breakdown */}
+            {stats?.principleScores && (
+              <div style={{
+                background: 'white',
+                padding: '20px',
+                borderRadius: '12px',
+                marginBottom: '25px',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
+              }}>
+                <h3 style={{ marginBottom: '15px' }}>{getTranslation('principleBreakdown')}</h3>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                  gap: '12px'
+                }}>
+                  {Object.keys(stats.principleScores).map(p => {
+                    const data = stats.principleScores[p];
+                    const pct = data.total > 0 ? Math.round((data.correct / data.total) * 100) : 0;
+                    const names = {
+                      seiri: '📋 Seiri',
+                      seiton: '📦 Seiton',
+                      seiso: '🧹 Seiso',
+                      seiketsu: '📐 Seiketsu',
+                      shitsuke: '🔄 Shitsuke'
+                    };
+                    return (
+                      <div key={p} style={{
+                        padding: '15px',
+                        background: '#f8fafc',
+                        borderRadius: '10px',
+                        border: '1px solid #e2e8f0'
+                      }}>
+                        <div style={{ fontWeight: '600' }}>{names[p] || p}</div>
+                        <div style={{
+                          fontSize: '24px',
+                          fontWeight: 'bold',
+                          color: pct >= 80 ? '#22c55e' : (pct >= 60 ? '#f59e0b' : '#dc2626')
+                        }}>
+                          {pct}%
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#5a6a7a' }}>
+                          {data.correct}/{data.total} correct
+                        </div>
+                        <div style={{
+                          width: '100%',
+                          height: '6px',
+                          background: '#e2e8f0',
+                          borderRadius: '3px',
+                          marginTop: '8px',
+                          overflow: 'hidden'
+                        }}>
+                          <div style={{
+                            width: `${pct}%`,
+                            height: '100%',
+                            background: pct >= 80 ? '#22c55e' : (pct >= 60 ? '#f59e0b' : '#dc2626')
+                          }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Assessments Table */}
+            <div style={{
+              background: 'white',
+              padding: '20px',
+              borderRadius: '12px',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
+            }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '15px',
+                flexWrap: 'wrap',
+                gap: '10px'
+              }}>
+                <h3>📋 {getTranslation('assessments')} ({assessments.length})</h3>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  <input
+                    type="text"
+                    placeholder={getTranslation('search')}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{
+                      padding: '8px 14px',
+                      border: '2px solid #e2e8f0',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      outline: 'none',
+                      minWidth: '200px'
+                    }}
+                  />
+                  <button
+                    onClick={exportAllPDF}
+                    style={{
+                      padding: '8px 16px',
+                      background: '#dc2626',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontWeight: '500'
+                    }}
+                  >
+                    📄 {getTranslation('exportAllPDF')}
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                  <thead>
+                    <tr style={{ background: '#f8fafc' }}>
+                      <th style={{ padding: '10px', textAlign: 'left' }}>{getTranslation('name')}</th>
+                      <th style={{ padding: '10px', textAlign: 'left' }}>{getTranslation('matricule')}</th>
+                      <th style={{ padding: '10px', textAlign: 'center' }}>{getTranslation('score')}</th>
+                      <th style={{ padding: '10px', textAlign: 'center' }}>{getTranslation('completed')}</th>
+                      <th style={{ padding: '10px', textAlign: 'center' }}>{getTranslation('date')}</th>
+                      <th style={{ padding: '10px', textAlign: 'center' }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredAssessments.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" style={{ padding: '30px', textAlign: 'center', color: '#94a3b8' }}>
+                          {getTranslation('noData')}
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredAssessments.slice(0, 50).map((a, index) => (
+                        <tr key={index} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                          <td style={{ padding: '10px' }}>{a.prenom} {a.nom}</td>
+                          <td style={{ padding: '10px' }}>{a.matricule}</td>
+                          <td style={{
+                            padding: '10px',
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                            color: a.score >= 12 ? '#22c55e' : (a.score >= 8 ? '#f59e0b' : '#dc2626')
+                          }}>
+                            {a.score || 0}/15
+                          </td>
+                          <td style={{ padding: '10px', textAlign: 'center' }}>
+                            {a.results ? Object.keys(a.results).filter(r => a.results[r].correct === a.results[r].total).length : 0}/5
+                          </td>
+                          <td style={{ padding: '10px', textAlign: 'center' }}>
+                            {a.createdAt ? new Date(a.createdAt).toLocaleDateString() : 'N/A'}
+                          </td>
+                          <td style={{ padding: '10px', textAlign: 'center' }}>
+                            <button
+                              onClick={() => exportIndividualPDF(a)}
+                              style={{
+                                padding: '4px 12px',
+                                background: '#667eea',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '12px'
+                              }}
+                            >
+                              📄 PDF
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+                {filteredAssessments.length > 50 && (
+                  <p style={{ textAlign: 'center', color: '#94a3b8', padding: '10px' }}>
+                    Showing 50 of {filteredAssessments.length} assessments
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        );
     }
   };
-
-  // Overview content
-  const renderOverview = () => (
-    <>
-      {/* Statistics Cards */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(160px, 22vw, 220px), 1fr))',
-        gap: '15px',
-        marginBottom: '25px'
-      }}>
-        <div className="professional-card" style={{
-          padding: '18px 20px',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          color: 'white',
-          border: 'none'
-        }}>
-          <div style={{ fontSize: '11px', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-            {getTranslation('totalUsers')}
-          </div>
-          <div style={{ fontSize: 'clamp(2rem, 4vw, 2.8rem)', fontWeight: '700', marginTop: '4px' }}>
-            {users.length}
-          </div>
-        </div>
-
-        <div className="professional-card" style={{
-          padding: '18px 20px',
-          background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-          color: 'white',
-          border: 'none'
-        }}>
-          <div style={{ fontSize: '11px', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-            {getTranslation('totalAssessments')}
-          </div>
-          <div style={{ fontSize: 'clamp(2rem, 4vw, 2.8rem)', fontWeight: '700', marginTop: '4px' }}>
-            {assessments.length}
-          </div>
-        </div>
-
-        <div className="professional-card" style={{
-          padding: '18px 20px',
-          background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-          color: 'white',
-          border: 'none'
-        }}>
-          <div style={{ fontSize: '11px', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-            {getTranslation('averageScore')}
-          </div>
-          <div style={{ fontSize: 'clamp(2rem, 4vw, 2.8rem)', fontWeight: '700', marginTop: '4px' }}>
-            {stats?.averageScore || 0}/15
-          </div>
-        </div>
-
-        <div className="professional-card" style={{
-          padding: '18px 20px',
-          background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
-          color: 'white',
-          border: 'none'
-        }}>
-          <div style={{ fontSize: '11px', opacity: 0.8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-            {getTranslation('totalPoints')}
-          </div>
-          <div style={{ fontSize: 'clamp(2rem, 4vw, 2.8rem)', fontWeight: '700', marginTop: '4px' }}>
-            {stats?.totalScore || 0}
-          </div>
-        </div>
-      </div>
-
-      {/* Principle Breakdown */}
-      {stats?.principleScores && (
-        <div className="professional-card animate-fadeInUp" style={{
-          marginBottom: '25px',
-          animationDelay: '0.1s'
-        }}>
-          <h3 style={{ 
-            fontSize: 'clamp(1rem, 2vw, 1.2rem)', 
-            color: '#1a2a3a', 
-            marginBottom: '15px' 
-          }}>
-            {getTranslation('principleBreakdown')}
-          </h3>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(160px, 22vw, 200px), 1fr))',
-            gap: '12px'
-          }}>
-            {Object.keys(stats.principleScores).map(p => {
-              const data = stats.principleScores[p];
-              const pct = data.total > 0 ? Math.round((data.correct / data.total) * 100) : 0;
-              const names = {
-                seiri: '📋 Seiri',
-                seiton: '📦 Seiton',
-                seiso: '🧹 Seiso',
-                seiketsu: '📐 Seiketsu',
-                shitsuke: '🔄 Shitsuke'
-              };
-              return (
-                <div key={p} style={{
-                  padding: '15px',
-                  backgroundColor: '#f8fafc',
-                  borderRadius: '12px',
-                  border: '1px solid #e2e8f0',
-                  transition: 'all 0.3s'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}>
-                  <div style={{ fontSize: 'clamp(0.8rem, 1.5vw, 0.9rem)', fontWeight: '600', color: '#1a2a3a' }}>
-                    {names[p] || p}
-                  </div>
-                  <div style={{
-                    fontSize: 'clamp(1.5rem, 3vw, 2.2rem)',
-                    fontWeight: '700',
-                    color: pct >= 80 ? '#22c55e' : (pct >= 60 ? '#f59e0b' : '#dc2626')
-                  }}>
-                    {pct}%
-                  </div>
-                  <div style={{ fontSize: 'clamp(0.7rem, 1.2vw, 0.85rem)', color: '#5a6a7a' }}>
-                    {data.correct}/{data.total} correct
-                  </div>
-                  <div style={{
-                    width: '100%',
-                    height: '6px',
-                    backgroundColor: '#e2e8f0',
-                    borderRadius: '3px',
-                    marginTop: '8px',
-                    overflow: 'hidden'
-                  }}>
-                    <div style={{
-                      width: `${pct}%`,
-                      height: '100%',
-                      backgroundColor: pct >= 80 ? '#22c55e' : (pct >= 60 ? '#f59e0b' : '#dc2626'),
-                      borderRadius: '3px',
-                      transition: 'width 0.6s ease'
-                    }} />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Assessments Table */}
-      <div className="professional-card animate-fadeInUp" style={{
-        animationDelay: '0.2s'
-      }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '15px',
-          flexWrap: 'wrap',
-          gap: '10px'
-        }}>
-          <h3 style={{ 
-            fontSize: 'clamp(1rem, 2vw, 1.2rem)', 
-            color: '#1a2a3a' 
-          }}>
-            📋 {getTranslation('assessments')} ({assessments.length})
-          </h3>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <input
-              type="text"
-              placeholder={getTranslation('search')}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                padding: '8px 14px',
-                border: '2px solid #e2e8f0',
-                borderRadius: '8px',
-                fontSize: 'clamp(0.8rem, 1.5vw, 0.9rem)',
-                outline: 'none',
-                minWidth: 'clamp(150px, 30vw, 250px)',
-                transition: 'border-color 0.2s'
-              }}
-              onFocus={(e) => e.target.style.borderColor = '#667eea'}
-              onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
-            />
-          </div>
-        </div>
-
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-            fontSize: 'clamp(0.7rem, 1.2vw, 0.85rem)'
-          }}>
-            <thead>
-              <tr style={{ backgroundColor: '#f8fafc' }}>
-                <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>
-                  {getTranslation('name')}
-                </th>
-                <th style={{ padding: '10px 12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>
-                  {getTranslation('matricule')}
-                </th>
-                <th style={{ padding: '10px 12px', textAlign: 'center', borderBottom: '2px solid #e2e8f0' }}>
-                  {getTranslation('score')}
-                </th>
-                <th style={{ padding: '10px 12px', textAlign: 'center', borderBottom: '2px solid #e2e8f0' }}>
-                  {getTranslation('completed')}
-                </th>
-                <th style={{ padding: '10px 12px', textAlign: 'center', borderBottom: '2px solid #e2e8f0' }}>
-                  {getTranslation('date')}
-                </th>
-                <th style={{ padding: '10px 12px', textAlign: 'center', borderBottom: '2px solid #e2e8f0' }}>
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredAssessments.length === 0 ? (
-                <tr>
-                  <td colSpan="6" style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
-                    <div style={{ fontSize: '48px', marginBottom: '10px' }}>📊</div>
-                    {getTranslation('noData')}
-                    <br />
-                    <button
-                      onClick={loadDashboardData}
-                      style={{
-                        marginTop: '15px',
-                        padding: '8px 20px',
-                        backgroundColor: '#667eea',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        fontSize: '14px'
-                      }}
-                    >
-                      🔄 {getTranslation('refresh')}
-                    </button>
-                  </td>
-                </tr>
-              ) : (
-                filteredAssessments.slice(0, 50).map((a, index) => (
-                  <tr key={index} style={{ 
-                    borderBottom: '1px solid #e2e8f0',
-                    transition: 'background-color 0.2s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-                    <td style={{ padding: '10px 12px', fontWeight: '500' }}>
-                      {a.prenom} {a.nom}
-                    </td>
-                    <td style={{ padding: '10px 12px' }}>{a.matricule}</td>
-                    <td style={{
-                      padding: '10px 12px',
-                      textAlign: 'center',
-                      fontWeight: 'bold',
-                      color: a.score >= 12 ? '#22c55e' : (a.score >= 8 ? '#f59e0b' : '#dc2626')
-                    }}>
-                      {a.score}/15
-                    </td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      {a.results ? Object.keys(a.results).filter(r => a.results[r].correct === a.results[r].total).length : 0}/5
-                    </td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      {new Date(a.createdAt).toLocaleDateString()}
-                    </td>
-                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <button
-                        onClick={() => exportDetailedPDF(a)}
-                        style={{
-                          padding: '6px 12px',
-                          backgroundColor: '#dc2626',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          fontSize: 'clamp(0.6rem, 1vw, 0.75rem)',
-                          marginRight: '5px',
-                          transition: 'all 0.2s'
-                        }}
-                        onMouseEnter={(e) => e.target.style.backgroundColor = '#b91c1c'}
-                        onMouseLeave={(e) => e.target.style.backgroundColor = '#dc2626'}
-                      >
-                        📄 {getTranslation('exportPDF')}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setSelectedUser({
-                            id: a.userId,
-                            nom: a.nom,
-                            prenom: a.prenom,
-                            matricule: a.matricule,
-                            score: a.score,
-                            email: a.email || 'N/A'
-                          });
-                          setUserAssessments(filteredAssessments.filter(ass => ass.userId === a.userId));
-                          setShowUserDetails(true);
-                        }}
-                        style={{
-                          padding: '6px 12px',
-                          backgroundColor: '#667eea',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          fontSize: 'clamp(0.6rem, 1vw, 0.75rem)',
-                          transition: 'all 0.2s'
-                        }}
-                        onMouseEnter={(e) => e.target.style.backgroundColor = '#5b21b6'}
-                        onMouseLeave={(e) => e.target.style.backgroundColor = '#667eea'}
-                      >
-                        👁️ {getTranslation('details')}
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-          {filteredAssessments.length > 50 && (
-            <p style={{ 
-              textAlign: 'center', 
-              color: '#94a3b8', 
-              fontSize: '0.85rem', 
-              padding: '15px'
-            }}>
-              Showing 50 of {filteredAssessments.length} assessments
-            </p>
-          )}
-        </div>
-      </div>
-    </>
-  );
 
   return (
     <div style={{ 
       minHeight: '100vh', 
-      backgroundColor: '#f8fafc',
+      background: '#f8fafc',
       padding: '15px',
       paddingBottom: '30px'
     }}>
       {/* Header */}
-      <div className="professional-card animate-fadeInUp" style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      <div style={{
+        background: 'linear-gradient(135deg, #667eea, #764ba2)',
         padding: '20px 25px',
         marginBottom: '25px',
         borderRadius: '16px',
-        color: 'white',
-        border: 'none'
+        color: 'white'
       }}>
         <div style={{
           display: 'flex',
@@ -550,37 +667,26 @@ const AdminDashboard = ({ user, onLogout, language }) => {
               onClick={loadDashboardData}
               style={{
                 padding: '8px 16px',
-                backgroundColor: 'rgba(255,255,255,0.2)',
+                background: 'rgba(255,255,255,0.2)',
                 color: 'white',
                 border: '1px solid rgba(255,255,255,0.3)',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                fontSize: 'clamp(0.7rem, 1.5vw, 0.9rem)',
-                fontWeight: '500',
-                backdropFilter: 'blur(10px)',
-                transition: 'all 0.3s'
+                backdropFilter: 'blur(10px)'
               }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.3)'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.2)'}
             >
               🔄 {getTranslation('refresh')}
             </button>
             <button
-              onClick={exportAllDetailedPDF}
+              onClick={exportAllPDF}
               style={{
                 padding: '8px 16px',
-                backgroundColor: 'rgba(255,255,255,0.2)',
+                background: 'rgba(220,38,38,0.8)',
                 color: 'white',
-                border: '1px solid rgba(255,255,255,0.3)',
+                border: 'none',
                 borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: 'clamp(0.7rem, 1.5vw, 0.9rem)',
-                fontWeight: '500',
-                backdropFilter: 'blur(10px)',
-                transition: 'all 0.3s'
+                cursor: 'pointer'
               }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.3)'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.2)'}
             >
               📄 {getTranslation('exportAllPDF')}
             </button>
@@ -588,17 +694,12 @@ const AdminDashboard = ({ user, onLogout, language }) => {
               onClick={onLogout}
               style={{
                 padding: '8px 16px',
-                backgroundColor: 'rgba(220,38,38,0.8)',
+                background: 'rgba(220,38,38,0.8)',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: 'clamp(0.7rem, 1.5vw, 0.9rem)',
-                fontWeight: '500',
-                transition: 'all 0.3s'
+                cursor: 'pointer'
               }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(220,38,38,1)'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(220,38,38,0.8)'}
             >
               {getTranslation('logout')}
             </button>
@@ -619,14 +720,12 @@ const AdminDashboard = ({ user, onLogout, language }) => {
           onClick={() => setActiveTab('overview')}
           style={{
             padding: '10px 24px',
-            backgroundColor: activeTab === 'overview' ? '#667eea' : 'transparent',
+            background: activeTab === 'overview' ? '#667eea' : 'transparent',
             color: activeTab === 'overview' ? 'white' : '#475569',
             border: activeTab === 'overview' ? '2px solid #667eea' : '2px solid transparent',
             borderRadius: '10px',
             cursor: 'pointer',
-            fontSize: 'clamp(0.85rem, 1.5vw, 1rem)',
-            fontWeight: '600',
-            transition: 'all 0.3s'
+            fontWeight: '600'
           }}
         >
           📊 {getTranslation('overview')}
@@ -635,14 +734,12 @@ const AdminDashboard = ({ user, onLogout, language }) => {
           onClick={() => setActiveTab('formation')}
           style={{
             padding: '10px 24px',
-            backgroundColor: activeTab === 'formation' ? '#667eea' : 'transparent',
+            background: activeTab === 'formation' ? '#667eea' : 'transparent',
             color: activeTab === 'formation' ? 'white' : '#475569',
             border: activeTab === 'formation' ? '2px solid #667eea' : '2px solid transparent',
             borderRadius: '10px',
             cursor: 'pointer',
-            fontSize: 'clamp(0.85rem, 1.5vw, 1rem)',
-            fontWeight: '600',
-            transition: 'all 0.3s'
+            fontWeight: '600'
           }}
         >
           📚 {getTranslation('formation')}
@@ -651,78 +748,26 @@ const AdminDashboard = ({ user, onLogout, language }) => {
           onClick={() => setActiveTab('progression')}
           style={{
             padding: '10px 24px',
-            backgroundColor: activeTab === 'progression' ? '#667eea' : 'transparent',
+            background: activeTab === 'progression' ? '#667eea' : 'transparent',
             color: activeTab === 'progression' ? 'white' : '#475569',
             border: activeTab === 'progression' ? '2px solid #667eea' : '2px solid transparent',
             borderRadius: '10px',
             cursor: 'pointer',
-            fontSize: 'clamp(0.85rem, 1.5vw, 1rem)',
-            fontWeight: '600',
-            transition: 'all 0.3s'
+            fontWeight: '600'
           }}
         >
           📈 {getTranslation('progression')}
         </button>
         <button
-          onClick={() => setActiveTab('analytics')}
-          style={{
-            padding: '10px 24px',
-            backgroundColor: activeTab === 'analytics' ? '#667eea' : 'transparent',
-            color: activeTab === 'analytics' ? 'white' : '#475569',
-            border: activeTab === 'analytics' ? '2px solid #667eea' : '2px solid transparent',
-            borderRadius: '10px',
-            cursor: 'pointer',
-            fontSize: 'clamp(0.85rem, 1.5vw, 1rem)',
-            fontWeight: '600',
-            transition: 'all 0.3s'
-          }}
-        >
-          📊 {getTranslation('analytics')}
-        </button>
-        <button
-          onClick={() => setActiveTab('reports')}
-          style={{
-            padding: '10px 24px',
-            backgroundColor: activeTab === 'reports' ? '#667eea' : 'transparent',
-            color: activeTab === 'reports' ? 'white' : '#475569',
-            border: activeTab === 'reports' ? '2px solid #667eea' : '2px solid transparent',
-            borderRadius: '10px',
-            cursor: 'pointer',
-            fontSize: 'clamp(0.85rem, 1.5vw, 1rem)',
-            fontWeight: '600',
-            transition: 'all 0.3s'
-          }}
-        >
-          📋 {getTranslation('reports')}
-        </button>
-        <button
-          onClick={() => setActiveTab('ai')}
-          style={{
-            padding: '10px 24px',
-            backgroundColor: activeTab === 'ai' ? '#667eea' : 'transparent',
-            color: activeTab === 'ai' ? 'white' : '#475569',
-            border: activeTab === 'ai' ? '2px solid #667eea' : '2px solid transparent',
-            borderRadius: '10px',
-            cursor: 'pointer',
-            fontSize: 'clamp(0.85rem, 1.5vw, 1rem)',
-            fontWeight: '600',
-            transition: 'all 0.3s'
-          }}
-        >
-          🤖 {getTranslation('ai')}
-        </button>
-        <button
           onClick={() => setActiveTab('adminModule')}
           style={{
             padding: '10px 24px',
-            backgroundColor: activeTab === 'adminModule' ? '#667eea' : 'transparent',
+            background: activeTab === 'adminModule' ? '#667eea' : 'transparent',
             color: activeTab === 'adminModule' ? 'white' : '#475569',
             border: activeTab === 'adminModule' ? '2px solid #667eea' : '2px solid transparent',
             borderRadius: '10px',
             cursor: 'pointer',
-            fontSize: 'clamp(0.85rem, 1.5vw, 1rem)',
-            fontWeight: '600',
-            transition: 'all 0.3s'
+            fontWeight: '600'
           }}
         >
           🏢 {getTranslation('adminModule')}
@@ -731,163 +776,9 @@ const AdminDashboard = ({ user, onLogout, language }) => {
 
       {/* Content */}
       {renderContent()}
-
-      {/* User Details Modal */}
-      {showUserDetails && selectedUser && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.6)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 9999,
-          padding: '15px',
-          backdropFilter: 'blur(4px)'
-        }}>
-          <div className="professional-card" style={{
-            maxWidth: '600px',
-            width: '100%',
-            maxHeight: '90vh',
-            overflow: 'auto',
-            padding: '25px',
-            animation: 'fadeInUp 0.3s ease'
-          }}>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '20px'
-            }}>
-              <h2 style={{ fontSize: 'clamp(1.2rem, 2.5vw, 1.6rem)', color: '#1a2a3a' }}>
-                {getTranslation('userDetails')}
-              </h2>
-              <button
-                onClick={() => setShowUserDetails(false)}
-                style={{
-                  padding: '6px 14px',
-                  backgroundColor: '#e2e8f0',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontSize: '18px',
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#cbd5e1'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#e2e8f0'}
-              >
-                ✕
-              </button>
-            </div>
-
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '12px',
-              marginBottom: '20px',
-              fontSize: 'clamp(0.8rem, 1.5vw, 0.95rem)'
-            }}>
-              <div><strong>{getTranslation('name')}:</strong> {selectedUser.prenom} {selectedUser.nom}</div>
-              <div><strong>{getTranslation('matricule')}:</strong> {selectedUser.matricule}</div>
-              <div><strong>{getTranslation('email')}:</strong> {selectedUser.email}</div>
-              <div><strong>{getTranslation('score')}:</strong> {selectedUser.score}/15</div>
-            </div>
-
-            <h3 style={{ fontSize: 'clamp(0.95rem, 2vw, 1.1rem)', color: '#1a2a3a', marginBottom: '12px' }}>
-              📋 {getTranslation('assessments')} ({userAssessments.length})
-            </h3>
-            
-            {userAssessments.length > 0 ? (
-              <div style={{ marginBottom: '20px' }}>
-                {userAssessments.map((a, i) => (
-                  <div key={i} style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '12px 15px',
-                    backgroundColor: '#f8fafc',
-                    borderRadius: '10px',
-                    marginBottom: '8px',
-                    border: '1px solid #e2e8f0',
-                    flexWrap: 'wrap',
-                    gap: '8px',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}>
-                    <div>
-                      <strong>Assessment #{i + 1}</strong>
-                      <span style={{ marginLeft: '10px', color: '#5a6a7a', fontSize: '0.85rem' }}>
-                        {new Date(a.createdAt).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <div style={{
-                      fontWeight: 'bold',
-                      color: a.score >= 12 ? '#22c55e' : (a.score >= 8 ? '#f59e0b' : '#dc2626')
-                    }}>
-                      {a.score}/15
-                    </div>
-                    <button
-                      onClick={() => exportDetailedPDF(a)}
-                      style={{
-                        padding: '4px 12px',
-                        backgroundColor: '#dc2626',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: 'clamp(0.65rem, 1vw, 0.8rem)',
-                        transition: 'all 0.2s'
-                      }}
-                      onMouseEnter={(e) => e.target.style.backgroundColor = '#b91c1c'}
-                      onMouseLeave={(e) => e.target.style.backgroundColor = '#dc2626'}
-                    >
-                      📄 {getTranslation('exportPDF')}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>
-                {getTranslation('noData')}
-              </p>
-            )}
-
-            <div style={{
-              display: 'flex',
-              gap: '10px',
-              marginTop: '10px',
-              flexWrap: 'wrap'
-            }}>
-              <button
-                onClick={() => setShowUserDetails(false)}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  backgroundColor: '#e2e8f0',
-                  color: '#475569',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontSize: 'clamp(0.8rem, 1.5vw, 0.9rem)',
-                  fontWeight: '500',
-                  minWidth: '100px',
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#cbd5e1'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#e2e8f0'}
-              >
-                {getTranslation('close')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
+// Default export - CRITICAL
 export default AdminDashboard;
