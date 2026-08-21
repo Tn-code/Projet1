@@ -8,7 +8,7 @@
     "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview",
-    "cloudflare-build": "chmod +x build.sh && ./build.sh"
+    "cloudflare-build": "npm install --legacy-peer-deps && npm run build"
   },
   "dependencies": {
     "firebase": "^10.7.1",
