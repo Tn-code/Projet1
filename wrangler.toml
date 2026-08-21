@@ -1,16 +1,5 @@
 name = "5s-game"
 pages_build_output_dir = "dist"
 
-[build]
-command = "npm run build"
-cwd = "/"
-
-[build.environment]
-NODE_VERSION = "18"
-NPM_VERSION = "9"
-
 [env.production]
-vars = { NODE_ENV = "production" }
-
-[env.preview]
-vars = { NODE_ENV = "preview" }
+vars = { NODE_VERSION = "18" }
