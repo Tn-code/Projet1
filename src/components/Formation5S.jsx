@@ -3,56 +3,188 @@ import { FORMATION_DATA } from '../data/formationData';
 
 const Formation5S = ({ language }) => {
   const [activeFormation, setActiveFormation] = useState('entreprise');
-  const [activeLevel, setActiveLevel] = useState(null);
   const [expandedLevel, setExpandedLevel] = useState(null);
+  const [trainingStarted, setTrainingStarted] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [completedSteps, setCompletedSteps] = useState([]);
 
   const getTranslation = (key) => {
     const translations = {
       title: { en: '📚 5S Training', fr: '📚 Formation 5S', ar: '📚 تدريب 5S' },
-      subtitle: { en: 'Complete 5S Training for Enterprise and Workstation', fr: 'Formation complète 5S pour l\'Entreprise et le Poste de Travail', ar: 'تدريب كامل 5S للمؤسسة ومحطة العمل' },
+      subtitle: { en: 'Complete 5S Training for Operators - 30 minutes', fr: 'Formation complète 5S pour Opérateurs - 30 minutes', ar: 'تدريب كامل 5S للمشغلين - 30 دقيقة' },
       enterprise: { en: '🏢 Enterprise 5S', fr: '🏢 5S Entreprise', ar: '🏢 5S المؤسسة' },
       poste: { en: '🔧 Poste 5S', fr: '🔧 5S Poste de Travail', ar: '🔧 5S محطة العمل' },
-      levels: { en: 'Training Levels', fr: 'Niveaux de Formation', ar: 'مستويات التدريب' },
       duration: { en: 'Duration', fr: 'Durée', ar: 'المدة' },
-      startTraining: { en: 'Start Training', fr: 'Commencer la Formation', ar: 'بدء التدريب' },
-      backToLevels: { en: 'Back to Levels', fr: 'Retour aux Niveaux', ar: 'العودة إلى المستويات' },
+      startTraining: { en: '▶️ Start Training', fr: '▶️ Commencer la Formation', ar: '▶️ بدء التدريب' },
+      continueTraining: { en: 'Continue Training', fr: 'Continuer la Formation', ar: 'مواصلة التدريب' },
       completed: { en: '✅ Completed', fr: '✅ Complété', ar: '✅ مكتمل' },
       inProgress: { en: '🔄 In Progress', fr: '🔄 En Cours', ar: '🔄 قيد التقدم' },
-      notStarted: { en: '📝 Not Started', fr: '📝 Non Commencé', ar: '📝 لم يبدأ' }
+      notStarted: { en: '📝 Not Started', fr: '📝 Non Commencé', ar: '📝 لم يبدأ' },
+      backToLevels: { en: '◀️ Back to Levels', fr: '◀️ Retour aux Niveaux', ar: '◀️ العودة إلى المستويات' },
+      nextStep: { en: 'Next Step →', fr: 'Étape Suivante →', ar: '→ الخطوة التالية' },
+      prevStep: { en: '← Previous Step', fr: '← Étape Précédente', ar: '← الخطوة السابقة' },
+      completeTraining: { en: '🎉 Complete Training', fr: '🎉 Terminer la Formation', ar: '🎉 إكمال التدريب' }
     };
     return translations[key]?.[language] || translations[key]?.en || key;
   };
 
   const formation = FORMATION_DATA[activeFormation];
   const levels = formation?.levels || [];
+  const currentLevel = levels[0]; // Only one level per formation for now
 
-  const handleLevelClick = (levelId) => {
-    if (expandedLevel === levelId) {
-      setExpandedLevel(null);
+  const startTraining = () => {
+    setTrainingStarted(true);
+    setCurrentStep(0);
+    setCompletedSteps([]);
+  };
+
+  const handleStepComplete = () => {
+    if (!completedSteps.includes(currentStep)) {
+      setCompletedSteps([...completedSteps, currentStep]);
+    }
+    if (currentStep < 4) {
+      setCurrentStep(currentStep + 1);
     } else {
-      setExpandedLevel(levelId);
+      // Training complete
+      setTrainingStarted(false);
+      setExpandedLevel(null);
     }
   };
 
-  const renderLevelContent = (level) => {
+  const renderTrainingContent = () => {
+    if (!currentLevel) return null;
+
+    const steps = [
+      { id: 'intro', label: 'Introduction' },
+      { id: 'seiri', label: 'Seiri (Sort)' },
+      { id: 'seiton', label: 'Seiton (Set in Order)' },
+      { id: 'seiso', label: 'Seiso (Shine)' },
+      { id: 'seiketsu', label: 'Seiketsu (Standardize)' },
+      { id: 'shitsuke', label: 'Shitsuke (Sustain)' }
+    ];
+
+    const isComplete = completedSteps.length === 5;
+
     return (
       <div style={{
-        marginTop: '15px',
         padding: '20px',
         backgroundColor: '#f8fafc',
         borderRadius: '12px',
-        border: '1px solid #e2e8f0'
+        border: '2px solid #667eea'
       }}>
-        <div dangerouslySetInnerHTML={{ __html: level.content[language] }} />
+        {/* Progress Bar */}
+        <div style={{ marginBottom: '20px' }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            fontSize: '12px',
+            color: '#5a6a7a',
+            marginBottom: '5px'
+          }}>
+            <span>Progress</span>
+            <span>{Math.round((completedSteps.length / 5) * 100)}%</span>
+          </div>
+          <div style={{
+            width: '100%',
+            height: '8px',
+            backgroundColor: '#e2e8f0',
+            borderRadius: '4px',
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              width: `${(completedSteps.length / 5) * 100}%`,
+              height: '100%',
+              background: 'linear-gradient(90deg, #667eea, #764ba2)',
+              transition: 'width 0.5s ease'
+            }} />
+          </div>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginTop: '5px',
+            fontSize: '10px',
+            color: '#94a3b8'
+          }}>
+            {steps.map((step, index) => (
+              <span key={step.id} style={{
+                color: completedSteps.includes(index) ? '#22c55e' : '#94a3b8',
+                fontWeight: completedSteps.includes(index) ? '600' : '400'
+              }}>
+                {completedSteps.includes(index) ? '✅' : '○'}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Content */}
+        <div dangerouslySetInnerHTML={{ __html: currentLevel.content[language] }} />
+
+        {/* Navigation */}
         <div style={{
-          marginTop: '15px',
-          padding: '12px',
-          backgroundColor: '#e0f2fe',
-          borderRadius: '8px',
-          fontSize: '14px',
-          color: '#1e40af'
+          display: 'flex',
+          justifyContent: 'space-between',
+          marginTop: '20px',
+          gap: '10px',
+          flexWrap: 'wrap'
         }}>
-          ⏱️ {getTranslation('duration')}: {level.duration[language]}
+          <button
+            onClick={() => {
+              setTrainingStarted(false);
+              setCurrentStep(0);
+              setCompletedSteps([]);
+            }}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: '#e2e8f0',
+              color: '#475569',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
+          >
+            {getTranslation('backToLevels')}
+          </button>
+          
+          {isComplete ? (
+            <button
+              onClick={() => {
+                setTrainingStarted(false);
+                setCurrentStep(0);
+                setCompletedSteps([]);
+                setExpandedLevel(null);
+              }}
+              style={{
+                padding: '12px 30px',
+                background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '600'
+              }}
+            >
+              🎉 {getTranslation('completeTraining')}
+            </button>
+          ) : (
+            <button
+              onClick={handleStepComplete}
+              style={{
+                padding: '12px 30px',
+                background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '600'
+              }}
+            >
+              {currentStep < 4 ? getTranslation('nextStep') : getTranslation('completeTraining')}
+            </button>
+          )}
         </div>
       </div>
     );
@@ -98,6 +230,7 @@ const Formation5S = ({ language }) => {
         <button
           onClick={() => {
             setActiveFormation('entreprise');
+            setTrainingStarted(false);
             setExpandedLevel(null);
           }}
           style={{
@@ -113,22 +246,13 @@ const Formation5S = ({ language }) => {
             flex: '1',
             minWidth: '150px'
           }}
-          onMouseEnter={(e) => {
-            if (activeFormation !== 'entreprise') {
-              e.target.style.backgroundColor = '#f1f5f9';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (activeFormation !== 'entreprise') {
-              e.target.style.backgroundColor = '#f8fafc';
-            }
-          }}
         >
           {getTranslation('enterprise')}
         </button>
         <button
           onClick={() => {
             setActiveFormation('poste');
+            setTrainingStarted(false);
             setExpandedLevel(null);
           }}
           style={{
@@ -144,133 +268,112 @@ const Formation5S = ({ language }) => {
             flex: '1',
             minWidth: '150px'
           }}
-          onMouseEnter={(e) => {
-            if (activeFormation !== 'poste') {
-              e.target.style.backgroundColor = '#f1f5f9';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (activeFormation !== 'poste') {
-              e.target.style.backgroundColor = '#f8fafc';
-            }
-          }}
         >
           {getTranslation('poste')}
         </button>
       </div>
 
-      {/* Formation Name */}
-      <div style={{
-        marginBottom: '20px',
-        padding: '15px 20px',
-        backgroundColor: '#f0f4ff',
-        borderRadius: '12px',
-        border: '1px solid #dbeafe'
-      }}>
-        <h3 style={{ 
-          fontSize: 'clamp(1.1rem, 2vw, 1.3rem)', 
-          color: '#1a2a3a' 
-        }}>
-          {formation.name[language]}
-        </h3>
-        <p style={{ fontSize: 'clamp(0.8rem, 1.2vw, 0.9rem)', color: '#5a6a7a' }}>
-          {getTranslation('levels')}: {levels.length}
-        </p>
-      </div>
+      {/* Training Content */}
+      {trainingStarted ? (
+        renderTrainingContent()
+      ) : (
+        <div>
+          {/* Formation Name */}
+          <div style={{
+            marginBottom: '20px',
+            padding: '15px 20px',
+            backgroundColor: '#f0f4ff',
+            borderRadius: '12px',
+            border: '1px solid #dbeafe'
+          }}>
+            <h3 style={{ 
+              fontSize: 'clamp(1.1rem, 2vw, 1.3rem)', 
+              color: '#1a2a3a' 
+            }}>
+              {formation.name[language]}
+            </h3>
+            <p style={{ fontSize: 'clamp(0.8rem, 1.2vw, 0.9rem)', color: '#5a6a7a' }}>
+              {getTranslation('duration')}: {levels[0]?.duration[language] || '30 minutes'}
+            </p>
+          </div>
 
-      {/* Levels List */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {levels.map((level, index) => (
-          <div
-            key={level.id}
-            style={{
-              border: expandedLevel === level.id ? '2px solid #667eea' : '1px solid #e2e8f0',
-              borderRadius: '12px',
-              overflow: 'hidden',
-              transition: 'all 0.3s',
-              animation: `fadeInUp 0.3s ease ${index * 0.1}s both`
-            }}
-          >
+          {/* Level Card */}
+          {levels.map((level, index) => (
             <div
-              onClick={() => handleLevelClick(level.id)}
+              key={level.id}
               style={{
-                padding: '16px 20px',
-                backgroundColor: expandedLevel === level.id ? '#f0f4ff' : 'white',
-                cursor: 'pointer',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                transition: 'all 0.2s',
-                flexWrap: 'wrap',
-                gap: '10px'
-              }}
-              onMouseEnter={(e) => {
-                if (expandedLevel !== level.id) {
-                  e.currentTarget.style.backgroundColor = '#f8fafc';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (expandedLevel !== level.id) {
-                  e.currentTarget.style.backgroundColor = 'white';
-                }
+                border: '2px solid #667eea',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                transition: 'all 0.3s',
+                animation: `fadeInUp 0.3s ease ${index * 0.1}s both`
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span style={{
-                  display: 'inline-flex',
+              <div
+                style={{
+                  padding: '20px 25px',
+                  backgroundColor: '#f0f4ff',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  justifyContent: 'space-between',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '30px',
-                  height: '30px',
-                  backgroundColor: '#667eea',
-                  color: 'white',
-                  borderRadius: '50%',
-                  fontSize: '14px',
-                  fontWeight: '700'
-                }}>
-                  {index + 1}
-                </span>
-                <div>
-                  <div style={{ fontWeight: '600', color: '#1a2a3a' }}>
-                    {level.name[language]}
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#5a6a7a' }}>
-                    ⏱️ {level.duration[language]}
+                  flexWrap: 'wrap',
+                  gap: '10px'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '36px',
+                    height: '36px',
+                    backgroundColor: '#667eea',
+                    color: 'white',
+                    borderRadius: '50%',
+                    fontSize: '16px',
+                    fontWeight: '700'
+                  }}>
+                    {index + 1}
+                  </span>
+                  <div>
+                    <div style={{ fontWeight: '600', color: '#1a2a3a', fontSize: '16px' }}>
+                      {level.name[language]}
+                    </div>
+                    <div style={{ fontSize: '13px', color: '#5a6a7a' }}>
+                      ⏱️ {level.duration[language]}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{
-                  fontSize: '12px',
-                  color: '#5a6a7a',
-                  backgroundColor: '#f1f5f9',
-                  padding: '4px 12px',
-                  borderRadius: '12px'
-                }}>
-                  {getTranslation('notStarted')}
-                </span>
-                <span style={{
-                  fontSize: '20px',
-                  color: '#94a3b8',
-                  transition: 'transform 0.3s',
-                  transform: expandedLevel === level.id ? 'rotate(180deg)' : 'rotate(0deg)'
-                }}>
-                  ▼
-                </span>
+                <button
+                  onClick={() => startTraining()}
+                  style={{
+                    padding: '10px 24px',
+                    background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    transition: 'all 0.3s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'scale(1.05)';
+                    e.target.style.boxShadow = '0 4px 15px rgba(102,126,234,0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'scale(1)';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                >
+                  {getTranslation('startTraining')}
+                </button>
               </div>
             </div>
-            {expandedLevel === level.id && (
-              <div style={{
-                padding: '20px',
-                backgroundColor: '#fafafa',
-                borderTop: '1px solid #e2e8f0'
-              }}>
-                {renderLevelContent(level)}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       <style>{`
         @keyframes fadeInUp {
@@ -282,6 +385,10 @@ const Formation5S = ({ language }) => {
             opacity: 1;
             transform: translateY(0);
           }
+        }
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
         }
       `}</style>
     </div>

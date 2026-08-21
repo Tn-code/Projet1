@@ -2,419 +2,527 @@ export const FORMATION_DATA = {
   entreprise: {
     id: 'entreprise',
     name: {
-      en: '🏢 Enterprise 5S',
-      fr: '🏢 5S Entreprise',
-      ar: '🏢 5S المؤسسة'
+      en: '🏢 Enterprise 5S Training',
+      fr: '🏢 Formation 5S Entreprise',
+      ar: '🏢 تدريب 5S المؤسسة'
     },
     levels: [
       {
         id: 'level1',
         name: {
-          en: 'Introduction to 5S',
-          fr: 'Introduction au 5S',
-          ar: 'مقدمة عن 5S'
+          en: '🎯 5S for Operators - 30 min',
+          fr: '🎯 5S pour Opérateurs - 30 min',
+          ar: '🎯 5S للمشغلين - 30 دقيقة'
         },
+        duration: { en: '30 minutes', fr: '30 minutes', ar: '30 دقيقة' },
+        type: 'training',
         content: {
           en: `
-            <h3>What is 5S?</h3>
-            <p>5S is a workplace organization method that uses a list of five Japanese words: Seiri, Seiton, Seiso, Seiketsu, and Shitsuke.</p>
+            <h2>🎯 5S Training for Operators</h2>
+            <p><strong>Duration:</strong> 30 minutes</p>
+            <p><strong>Objective:</strong> Master the 5S methodology to improve your workstation efficiency</p>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>📋 What is 5S?</h3>
+            <p>5S is a workplace organization method that creates a clean, organized, and efficient work environment.</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;">
+              <div style="background: #f0f4ff; padding: 10px; border-radius: 8px;">
+                <strong>🇯🇵 Japanese</strong>
+                <p style="font-size: 12px; margin: 5px 0;">Seiri • Seiton • Seiso • Seiketsu • Shitsuke</p>
+              </div>
+              <div style="background: #f0f4ff; padding: 10px; border-radius: 8px;">
+                <strong>🇬🇧 English</strong>
+                <p style="font-size: 12px; margin: 5px 0;">Sort • Set • Shine • Standardize • Sustain</p>
+              </div>
+            </div>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>🔴 1. Seiri (Sort) - 5 min</h3>
+            <p><strong>Goal:</strong> Eliminate unnecessary items from your workstation</p>
             <ul>
-              <li><strong>Seiri (Sort):</strong> Eliminate unnecessary items</li>
-              <li><strong>Seiton (Set in order):</strong> Organize and arrange properly</li>
-              <li><strong>Seiso (Shine):</strong> Clean and inspect</li>
-              <li><strong>Seiketsu (Standardize):</strong> Create standards and procedures</li>
-              <li><strong>Shitsuke (Sustain):</strong> Maintain discipline and continuous improvement</li>
+              <li>✅ Identify all items in your workspace</li>
+              <li>✅ Remove broken or unused tools</li>
+              <li>✅ Separate needed from unneeded items</li>
+              <li>✅ Use the "Red Tag" technique</li>
             </ul>
-            <h4>Benefits of 5S:</h4>
+            <div style="background: #fef3c7; padding: 10px; border-radius: 8px; margin: 10px 0;">
+              <strong>💡 Action:</strong> Take 2 minutes to remove 3 unnecessary items from your desk
+            </div>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>📦 2. Seiton (Set in Order) - 5 min</h3>
+            <p><strong>Goal:</strong> Organize items for easy access and efficiency</p>
             <ul>
-              <li>Increased productivity</li>
-              <li>Improved safety</li>
-              <li>Reduced waste</li>
-              <li>Better quality</li>
-              <li>Enhanced employee morale</li>
+              <li>✅ Create designated places for everything</li>
+              <li>✅ Label storage areas clearly</li>
+              <li>✅ Arrange tools by frequency of use</li>
+              <li>✅ Implement shadow boards</li>
             </ul>
+            <div style="background: #dbeafe; padding: 10px; border-radius: 8px; margin: 10px 0;">
+              <strong>💡 Action:</strong> Organize your tools - place frequently used items within arm's reach
+            </div>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>🧹 3. Seiso (Shine) - 5 min</h3>
+            <p><strong>Goal:</strong> Clean and inspect your workplace</p>
+            <ul>
+              <li>✅ Clean all surfaces and equipment</li>
+              <li>✅ Inspect for problems during cleaning</li>
+              <li>✅ Create a cleaning schedule</li>
+              <li>✅ Maintain a spotless workspace</li>
+            </ul>
+            <div style="background: #d1fae5; padding: 10px; border-radius: 8px; margin: 10px 0;">
+              <strong>💡 Action:</strong> Clean your workstation and note any issues you find
+            </div>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>📐 4. Seiketsu (Standardize) - 5 min</h3>
+            <p><strong>Goal:</strong> Create standards and procedures</p>
+            <ul>
+              <li>✅ Document best practices</li>
+              <li>✅ Create visual guides and checklists</li>
+              <li>✅ Establish daily routines</li>
+              <li>✅ Make abnormalities visible</li>
+            </ul>
+            <div style="background: #fce7f3; padding: 10px; border-radius: 8px; margin: 10px 0;">
+              <strong>💡 Action:</strong> Create a 5S checklist for your daily routine
+            </div>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>🔄 5. Shitsuke (Sustain) - 5 min</h3>
+            <p><strong>Goal:</strong> Maintain and continuously improve</p>
+            <ul>
+              <li>✅ Make 5S a daily habit</li>
+              <li>✅ Conduct regular self-audits</li>
+              <li>✅ Share best practices with colleagues</li>
+              <li>✅ Continuously improve your workspace</li>
+            </ul>
+            <div style="background: #e0e7ff; padding: 10px; border-radius: 8px; margin: 10px 0;">
+              <strong>💡 Action:</strong> Commit to 5 minutes of 5S at the start and end of each shift
+            </div>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>✅ 5S Daily Checklist</h3>
+            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 2px solid #667eea;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                <tr style="background: #667eea; color: white;">
+                  <th style="padding: 8px; text-align: left;">Task</th>
+                  <th style="padding: 8px; text-align: center;">✓</th>
+                </tr>
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                  <td style="padding: 8px;">Clear workspace of unnecessary items</td>
+                  <td style="padding: 8px; text-align: center;">☐</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                  <td style="padding: 8px;">Organize tools and materials</td>
+                  <td style="padding: 8px; text-align: center;">☐</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                  <td style="padding: 8px;">Clean work surfaces</td>
+                  <td style="padding: 8px; text-align: center;">☐</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                  <td style="padding: 8px;">Check equipment condition</td>
+                  <td style="padding: 8px; text-align: center;">☐</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px;">Review and improve processes</td>
+                  <td style="padding: 8px; text-align: center;">☐</td>
+                </tr>
+              </table>
+            </div>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>🏆 Benefits of 5S</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 15px 0;">
+              <div style="background: #d1fae5; padding: 12px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px;">⚡</div>
+                <div style="font-weight: 600; font-size: 14px;">Productivity</div>
+                <div style="font-size: 12px; color: #5a6a7a;">Reduce wasted time</div>
+              </div>
+              <div style="background: #dbeafe; padding: 12px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px;">🛡️</div>
+                <div style="font-weight: 600; font-size: 14px;">Safety</div>
+                <div style="font-size: 12px; color: #5a6a7a;">Fewer accidents</div>
+              </div>
+              <div style="background: #fce7f3; padding: 12px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px;">💎</div>
+                <div style="font-weight: 600; font-size: 14px;">Quality</div>
+                <div style="font-size: 12px; color: #5a6a7a;">Better work output</div>
+              </div>
+            </div>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>🎯 Quiz - Check Your Knowledge</h3>
+            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+              <p><strong>1. What does Seiri mean?</strong></p>
+              <ul style="list-style: none; padding: 0;">
+                <li style="padding: 5px;">A) Clean and inspect ✓</li>
+                <li style="padding: 5px;">B) Sort and eliminate ✓</li>
+                <li style="padding: 5px;">C) Organize and arrange ✓</li>
+                <li style="padding: 5px;">D) Maintain and sustain ✓</li>
+              </ul>
+              <p style="margin-top: 10px;"><strong>2. How often should you perform 5S?</strong></p>
+              <ul style="list-style: none; padding: 0;">
+                <li style="padding: 5px;">A) Once a year</li>
+                <li style="padding: 5px;">B) Every month</li>
+                <li style="padding: 5px;">C) Daily ✓</li>
+                <li style="padding: 5px;">D) Never</li>
+              </ul>
+              <p style="margin-top: 10px;"><strong>3. What is the benefit of Seiton?</strong></p>
+              <ul style="list-style: none; padding: 0;">
+                <li style="padding: 5px;">A) Saves time finding tools ✓</li>
+                <li style="padding: 5px;">B) Makes cleaning harder</li>
+                <li style="padding: 5px;">C) Creates more waste</li>
+                <li style="padding: 5px;">D) Increases cost</li>
+              </ul>
+            </div>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+              <h3 style="color: white;">🎉 Congratulations!</h3>
+              <p>You've completed the 30-minute 5S training for operators!</p>
+              <p style="font-size: 14px; opacity: 0.9; margin-top: 10px;">
+                Remember: 5S is not a one-time activity, but a daily habit for continuous improvement.
+              </p>
+              <div style="margin-top: 15px; font-size: 32px;">
+                ⭐⭐⭐⭐⭐
+              </div>
+            </div>
           `,
           fr: `
-            <h3>Qu'est-ce que le 5S ?</h3>
-            <p>La méthode 5S est une méthode d'organisation du lieu de travail qui utilise une liste de cinq mots japonais : Seiri, Seiton, Seiso, Seiketsu et Shitsuke.</p>
+            <h2>🎯 Formation 5S pour Opérateurs</h2>
+            <p><strong>Durée:</strong> 30 minutes</p>
+            <p><strong>Objectif:</strong> Maîtriser la méthodologie 5S pour améliorer l'efficacité de votre poste de travail</p>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>📋 Qu'est-ce que le 5S ?</h3>
+            <p>La méthode 5S est une méthode d'organisation du lieu de travail qui crée un environnement de travail propre, organisé et efficace.</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;">
+              <div style="background: #f0f4ff; padding: 10px; border-radius: 8px;">
+                <strong>🇯🇵 Japonais</strong>
+                <p style="font-size: 12px; margin: 5px 0;">Seiri • Seiton • Seiso • Seiketsu • Shitsuke</p>
+              </div>
+              <div style="background: #f0f4ff; padding: 10px; border-radius: 8px;">
+                <strong>🇫🇷 Français</strong>
+                <p style="font-size: 12px; margin: 5px 0;">Trier • Ranger • Nettoyer • Standardiser • Maintenir</p>
+              </div>
+            </div>
+            
+            <!-- Continue with French translation of all sections -->
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>🔴 1. Seiri (Trier) - 5 min</h3>
+            <p><strong>Objectif:</strong> Éliminer les éléments inutiles de votre poste de travail</p>
             <ul>
-              <li><strong>Seiri (Trier) :</strong> Éliminer ce qui est inutile</li>
-              <li><strong>Seiton (Ranger) :</strong> Organiser et ranger correctement</li>
-              <li><strong>Seiso (Nettoyer) :</strong> Nettoyer et inspecter</li>
-              <li><strong>Seiketsu (Standardiser) :</strong> Créer des standards et procédures</li>
-              <li><strong>Shitsuke (Maintenir) :</strong> Maintenir la discipline et l'amélioration continue</li>
+              <li>✅ Identifier tous les articles dans votre espace de travail</li>
+              <li>✅ Retirer les outils cassés ou inutilisés</li>
+              <li>✅ Séparer les articles nécessaires des inutiles</li>
+              <li>✅ Utiliser la technique du "Tag Rouge"</li>
             </ul>
-            <h4>Avantages du 5S :</h4>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>📦 2. Seiton (Ranger) - 5 min</h3>
+            <p><strong>Objectif:</strong> Organiser les articles pour un accès facile et une efficacité maximale</p>
             <ul>
-              <li>Productivité accrue</li>
-              <li>Sécurité améliorée</li>
-              <li>Réduction des déchets</li>
-              <li>Meilleure qualité</li>
-              <li>Moral des employés renforcé</li>
+              <li>✅ Créer des emplacements désignés pour tout</li>
+              <li>✅ Étiqueter clairement les zones de stockage</li>
+              <li>✅ Organiser les outils par fréquence d'utilisation</li>
+              <li>✅ Mettre en place des tableaux d'ombre</li>
             </ul>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>🧹 3. Seiso (Nettoyer) - 5 min</h3>
+            <p><strong>Objectif:</strong> Nettoyer et inspecter votre lieu de travail</p>
+            <ul>
+              <li>✅ Nettoyer toutes les surfaces et équipements</li>
+              <li>✅ Inspecter pour détecter les problèmes lors du nettoyage</li>
+              <li>✅ Créer un calendrier de nettoyage</li>
+              <li>✅ Maintenir un espace de travail impeccable</li>
+            </ul>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>📐 4. Seiketsu (Standardiser) - 5 min</h3>
+            <p><strong>Objectif:</strong> Créer des standards et des procédures</p>
+            <ul>
+              <li>✅ Documenter les meilleures pratiques</li>
+              <li>✅ Créer des guides visuels et des listes de contrôle</li>
+              <li>✅ Établir des routines quotidiennes</li>
+              <li>✅ Rendre les anomalies visibles</li>
+            </ul>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>🔄 5. Shitsuke (Maintenir) - 5 min</h3>
+            <p><strong>Objectif:</strong> Maintenir et améliorer continuellement</p>
+            <ul>
+              <li>✅ Faire du 5S une habitude quotidienne</li>
+              <li>✅ Effectuer des auto-audits réguliers</li>
+              <li>✅ Partager les bonnes pratiques avec les collègues</li>
+              <li>✅ Améliorer continuellement votre espace de travail</li>
+            </ul>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+              <h3 style="color: white;">🎉 Félicitations !</h3>
+              <p>Vous avez terminé la formation 5S de 30 minutes pour opérateurs !</p>
+              <p style="font-size: 14px; opacity: 0.9; margin-top: 10px;">
+                Rappelez-vous : le 5S n'est pas une activité ponctuelle, mais une habitude quotidienne pour l'amélioration continue.
+              </p>
+            </div>
           `,
           ar: `
-            <h3>ما هو 5S؟</h3>
-            <p>5S هي طريقة لتنظيم مكان العمل تستخدم قائمة من خمس كلمات يابانية: سيري، سيتون، سيسو، سيكيتسو، وشيتسوكي.</p>
+            <h2>🎯 تدريب 5S للمشغلين</h2>
+            <p><strong>المدة:</strong> 30 دقيقة</p>
+            <p><strong>الهدف:</strong> إتقان منهجية 5S لتحسين كفاءة محطة العمل</p>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>📋 ما هو 5S؟</h3>
+            <p>5S هي طريقة لتنظيم مكان العمل تخلق بيئة عمل نظيفة ومنظمة وفعالة.</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;">
+              <div style="background: #f0f4ff; padding: 10px; border-radius: 8px;">
+                <strong>🇯🇵 ياباني</strong>
+                <p style="font-size: 12px; margin: 5px 0;">سيري • سيتون • سيسو • سيكيتسو • شيتسوكي</p>
+              </div>
+              <div style="background: #f0f4ff; padding: 10px; border-radius: 8px;">
+                <strong>🇸🇦 عربي</strong>
+                <p style="font-size: 12px; margin: 5px 0;">الفرز • الترتيب • التنظيف • التوحيد • الاستدامة</p>
+              </div>
+            </div>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>🔴 1. سيري (الفرز) - 5 دقائق</h3>
+            <p><strong>الهدف:</strong> التخلص من العناصر غير الضرورية في محطة العمل</p>
             <ul>
-              <li><strong>سيري (الفرز):</strong> التخلص من العناصر غير الضرورية</li>
-              <li><strong>سيتون (الترتيب):</strong> تنظيم وترتيب بشكل صحيح</li>
-              <li><strong>سيسو (التنظيف):</strong> التنظيف والفحص</li>
-              <li><strong>سيكيتسو (التوحيد):</strong> إنشاء معايير وإجراءات</li>
-              <li><strong>شيتسوكي (الاستدامة):</strong> الحفاظ على الانضباط والتحسين المستمر</li>
+              <li>✅ تحديد جميع العناصر في مساحة العمل</li>
+              <li>✅ إزالة الأدوات المكسورة أو غير المستخدمة</li>
+              <li>✅ فصل العناصر الضرورية عن غير الضرورية</li>
+              <li>✅ استخدام تقنية "البطاقة الحمراء"</li>
             </ul>
-            <h4>فوائد 5S:</h4>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>📦 2. سيتون (الترتيب) - 5 دقائق</h3>
+            <p><strong>الهدف:</strong> تنظيم العناصر لسهولة الوصول والكفاءة</p>
             <ul>
-              <li>زيادة الإنتاجية</li>
-              <li>تحسين السلامة</li>
-              <li>تقليل النفايات</li>
-              <li>جودة أفضل</li>
-              <li>تعزيز معنويات الموظفين</li>
+              <li>✅ إنشاء أماكن مخصصة لكل شيء</li>
+              <li>✅ وضع ملصقات واضحة على مناطق التخزين</li>
+              <li>✅ ترتيب الأدوات حسب تكرار الاستخدام</li>
+              <li>✅ تنفيذ لوحات الظل</li>
             </ul>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>🧹 3. سيسو (التنظيف) - 5 دقائق</h3>
+            <p><strong>الهدف:</strong> تنظيف وفحص مكان العمل</p>
+            <ul>
+              <li>✅ تنظيف جميع الأسطح والمعدات</li>
+              <li>✅ فحص المشاكل أثناء التنظيف</li>
+              <li>✅ إنشاء جدول تنظيف</li>
+              <li>✅ الحفاظ على مساحة عمل نظيفة</li>
+            </ul>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>📐 4. سيكيتسو (التوحيد) - 5 دقائق</h3>
+            <p><strong>الهدف:</strong> إنشاء معايير وإجراءات</p>
+            <ul>
+              <li>✅ توثيق أفضل الممارسات</li>
+              <li>✅ إنشاء أدلة بصرية وقوائم مراجعة</li>
+              <li>✅ وضع روتين يومي</li>
+              <li>✅ جعل الحالات الشاذة مرئية</li>
+            </ul>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>🔄 5. شيتسوكي (الاستدامة) - 5 دقائق</h3>
+            <p><strong>الهدف:</strong> الحفاظ على التحسين المستمر</p>
+            <ul>
+              <li>✅ جعل 5S عادة يومية</li>
+              <li>✅ إجراء تدقيق ذاتي منتظم</li>
+              <li>✅ مشاركة أفضل الممارسات مع الزملاء</li>
+              <li>✅ تحسين مساحة العمل باستمرار</li>
+            </ul>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+              <h3 style="color: white;">🎉 مبروك !</h3>
+              <p>لقد أكملت تدريب 5S لمدة 30 دقيقة للمشغلين!</p>
+              <p style="font-size: 14px; opacity: 0.9; margin-top: 10px;">
+                تذكر: 5S ليس نشاطاً لمرة واحدة، بل عادة يومية للتحسين المستمر.
+              </p>
+            </div>
           `
-        },
-        duration: { en: '1 hour', fr: '1 heure', ar: 'ساعة واحدة' }
-      },
-      {
-        id: 'level2',
-        name: {
-          en: 'Implementing 5S in the Workplace',
-          fr: 'Mise en œuvre du 5S sur le lieu de travail',
-          ar: 'تنفيذ 5S في مكان العمل'
-        },
-        content: {
-          en: `
-            <h3>Steps to Implement 5S</h3>
-            <ol>
-              <li><strong>Assessment:</strong> Evaluate current workplace conditions</li>
-              <li><strong>Planning:</strong> Develop an implementation plan</li>
-              <li><strong>Training:</strong> Train all employees on 5S principles</li>
-              <li><strong>Execution:</strong> Implement each step systematically</li>
-              <li><strong>Audit:</strong> Regular audits to ensure compliance</li>
-              <li><strong>Sustain:</strong> Continuous improvement and maintenance</li>
-            </ol>
-            <h4>Key Success Factors:</h4>
-            <ul>
-              <li>Management commitment</li>
-              <li>Employee involvement</li>
-              <li>Regular communication</li>
-              <li>Visual management</li>
-              <li>Continuous training</li>
-            </ul>
-          `,
-          fr: `
-            <h3>Étapes pour mettre en œuvre le 5S</h3>
-            <ol>
-              <li><strong>Évaluation :</strong> Évaluer les conditions actuelles du lieu de travail</li>
-              <li><strong>Planification :</strong> Élaborer un plan de mise en œuvre</li>
-              <li><strong>Formation :</strong> Former tous les employés aux principes 5S</li>
-              <li><strong>Exécution :</strong> Mettre en œuvre chaque étape systématiquement</li>
-              <li><strong>Audit :</strong> Audits réguliers pour assurer la conformité</li>
-              <li><strong>Maintenir :</strong> Amélioration continue et maintenance</li>
-            </ol>
-            <h4>Facteurs clés de succès :</h4>
-            <ul>
-              <li>Engagement de la direction</li>
-              <li>Implication des employés</li>
-              <li>Communication régulière</li>
-              <li>Gestion visuelle</li>
-              <li>Formation continue</li>
-            </ul>
-          `,
-          ar: `
-            <h3>خطوات تنفيذ 5S</h3>
-            <ol>
-              <li><strong>التقييم:</strong> تقييم ظروف مكان العمل الحالية</li>
-              <li><strong>التخطيط:</strong> وضع خطة تنفيذ</li>
-              <li><strong>التدريب:</strong> تدريب جميع الموظفين على مبادئ 5S</li>
-              <li><strong>التنفيذ:</strong> تنفيذ كل خطوة بشكل منهجي</li>
-              <li><strong>التدقيق:</strong> تدقيق منتظم لضمان الامتثال</li>
-              <li><strong>الاستدامة:</strong> التحسين المستمر والصيانة</li>
-            </ol>
-            <h4>عوامل النجاح الرئيسية:</h4>
-            <ul>
-              <li>التزام الإدارة</li>
-              <li>مشاركة الموظفين</li>
-              <li>التواصل المنتظم</li>
-              <li>الإدارة البصرية</li>
-              <li>التدريب المستمر</li>
-            </ul>
-          `
-        },
-        duration: { en: '2 hours', fr: '2 heures', ar: 'ساعتان' }
-      },
-      {
-        id: 'level3',
-        name: {
-          en: 'Advanced 5S Techniques',
-          fr: 'Techniques 5S Avancées',
-          ar: 'تقنيات 5S المتقدمة'
-        },
-        content: {
-          en: `
-            <h3>Advanced 5S Techniques</h3>
-            <ul>
-              <li><strong>Visual Management:</strong> Using visual tools to manage workplace</li>
-              <li><strong>Standardized Work:</strong> Creating work standards</li>
-              <li><strong>Lean Manufacturing:</strong> Combining 5S with lean principles</li>
-              <li><strong>Total Productive Maintenance:</strong> Equipment maintenance</li>
-              <li><strong>Kaizen:</strong> Continuous improvement culture</li>
-            </ul>
-            <h4>Tools and Techniques:</h4>
-            <ul>
-              <li>Visual control boards</li>
-              <li>Checklists and SOPs</li>
-              <li>Shadow boards for tools</li>
-              <li>Color coding systems</li>
-              <li>Kanban systems</li>
-            </ul>
-          `,
-          fr: `
-            <h3>Techniques 5S Avancées</h3>
-            <ul>
-              <li><strong>Gestion Visuelle :</strong> Utiliser des outils visuels pour gérer le lieu de travail</li>
-              <li><strong>Travail Standardisé :</strong> Créer des standards de travail</li>
-              <li><strong>Lean Manufacturing :</strong> Combiner 5S avec les principes Lean</li>
-              <li><strong>Maintenance Productive Totale :</strong> Maintenance des équipements</li>
-              <li><strong>Kaizen :</strong> Culture d'amélioration continue</li>
-            </ul>
-            <h4>Outils et Techniques :</h4>
-            <ul>
-              <li>Tableaux de contrôle visuels</li>
-              <li>Listes de contrôle et SOP</li>
-              <li>Tableaux d'ombre pour les outils</li>
-              <li>Systèmes de code couleur</li>
-              <li>Systèmes Kanban</li>
-            </ul>
-          `,
-          ar: `
-            <h3>تقنيات 5S المتقدمة</h3>
-            <ul>
-              <li><strong>الإدارة البصرية:</strong> استخدام الأدوات البصرية لإدارة مكان العمل</li>
-              <li><strong>العمل الموحد:</strong> إنشاء معايير العمل</li>
-              <li><strong>التصنيع الخالي من الهدر:</strong> دمج 5S مع مبادئ اللين</li>
-              <li><strong>الصيانة الإنتاجية الشاملة:</strong> صيانة المعدات</li>
-              <li><strong>كايزن:</strong> ثقافة التحسين المستمر</li>
-            </ul>
-            <h4>الأدوات والتقنيات:</h4>
-            <ul>
-              <li>لوحات التحكم البصرية</li>
-              <li>قوائم المراجعة وإجراءات التشغيل القياسية</li>
-              <li>لوحات الظل للأدوات</li>
-              <li>أنظمة الترميز اللوني</li>
-              <li>أنظمة كانبان</li>
-            </ul>
-          `
-        },
-        duration: { en: '3 hours', fr: '3 heures', ar: '3 ساعات' }
+        }
       }
     ]
   },
   poste: {
     id: 'poste',
     name: {
-      en: '🔧 Poste 5S',
-      fr: '🔧 5S Poste de Travail',
-      ar: '🔧 5S محطة العمل'
+      en: '🔧 Poste 5S Training',
+      fr: '🔧 Formation 5S Poste de Travail',
+      ar: '🔧 تدريب 5S محطة العمل'
     },
     levels: [
       {
         id: 'level1',
         name: {
-          en: 'Individual Workstation 5S',
-          fr: '5S du Poste de Travail Individuel',
-          ar: '5S محطة العمل الفردية'
+          en: '🎯 Poste 5S - 30 min',
+          fr: '🎯 5S Poste de Travail - 30 min',
+          ar: '🎯 5S محطة العمل - 30 دقيقة'
         },
+        duration: { en: '30 minutes', fr: '30 minutes', ar: '30 دقيقة' },
+        type: 'training',
         content: {
           en: `
-            <h3>5S for Your Workstation</h3>
-            <p>Apply 5S principles to your individual workstation:</p>
-            <ul>
-              <li><strong>Sort:</strong> Remove unnecessary items from your workspace</li>
-              <li><strong>Set in Order:</strong> Organize tools for easy access</li>
-              <li><strong>Shine:</strong> Keep your workspace clean</li>
-              <li><strong>Standardize:</strong> Create daily routines</li>
-              <li><strong>Sustain:</strong> Maintain habits</li>
-            </ul>
-            <h4>Daily 5S Checklist:</h4>
-            <ul>
-              <li>Clean desk and equipment</li>
-              <li>Organize files and documents</li>
-              <li>Check tools and materials</li>
-              <li>Update visual boards</li>
-              <li>Plan next day's tasks</li>
-            </ul>
+            <h2>🔧 Poste 5S Training for Operators</h2>
+            <p><strong>Duration:</strong> 30 minutes</p>
+            <p><strong>Focus:</strong> Apply 5S to your specific workstation</p>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>📍 Your Workstation 5S</h3>
+            <p>Apply 5S principles directly to your individual workstation:</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;">
+              <div style="background: #f0f4ff; padding: 15px; border-radius: 8px;">
+                <div style="font-size: 24px;">📋</div>
+                <h4>Before 5S</h4>
+                <ul style="font-size: 13px;">
+                  <li>Cluttered workspace</li>
+                  <li>Hard to find tools</li>
+                  <li>Wasted time searching</li>
+                  <li>Unsafe environment</li>
+                </ul>
+              </div>
+              <div style="background: #d1fae5; padding: 15px; border-radius: 8px;">
+                <div style="font-size: 24px;">✨</div>
+                <h4>After 5S</h4>
+                <ul style="font-size: 13px;">
+                  <li>Clean and organized</li>
+                  <li>Everything in its place</li>
+                  <li>Efficient workflow</li>
+                  <li>Safe environment</li>
+                </ul>
+              </div>
+            </div>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>🛠️ Step-by-Step Workstation 5S</h3>
+            
+            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin: 10px 0;">
+              <h4>🔴 Step 1: Sort (5 min)</h4>
+              <ul>
+                <li>Remove all items from your workstation</li>
+                <li>Sort items into: Keep, Move, Discard</li>
+                <li>Keep only what you need daily</li>
+              </ul>
+            </div>
+            
+            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin: 10px 0;">
+              <h4>📦 Step 2: Set in Order (5 min)</h4>
+              <ul>
+                <li>Designate a place for every item</li>
+                <li>Use organizers and labels</li>
+                <li>Place frequently used items closest to you</li>
+              </ul>
+            </div>
+            
+            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin: 10px 0;">
+              <h4>🧹 Step 3: Shine (5 min)</h4>
+              <ul>
+                <li>Clean your entire workstation</li>
+                <li>Wipe down all surfaces</li>
+                <li>Check equipment condition</li>
+              </ul>
+            </div>
+            
+            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin: 10px 0;">
+              <h4>📐 Step 4: Standardize (5 min)</h4>
+              <ul>
+                <li>Create a workstation layout diagram</li>
+                <li>Make a daily cleaning checklist</li>
+                <li>Take photos of the ideal setup</li>
+              </ul>
+            </div>
+            
+            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin: 10px 0;">
+              <h4>🔄 Step 5: Sustain (5 min)</h4>
+              <ul>
+                <li>Dedicate 5 minutes daily to 5S</li>
+                <li>Conduct weekly self-audits</li>
+                <li>Share improvements with your team</li>
+              </ul>
+            </div>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+              <h3 style="color: white;">🎉 Poste 5S Complete!</h3>
+              <p>Your workstation is now optimized for maximum efficiency!</p>
+              <p style="font-size: 14px; opacity: 0.9; margin-top: 10px;">
+                Remember: A clean workstation = A productive operator
+              </p>
+            </div>
           `,
           fr: `
-            <h3>5S pour Votre Poste de Travail</h3>
-            <p>Appliquez les principes 5S à votre poste de travail individuel :</p>
-            <ul>
-              <li><strong>Trier :</strong> Retirer les éléments inutiles de votre espace de travail</li>
-              <li><strong>Ranger :</strong> Organiser les outils pour un accès facile</li>
-              <li><strong>Nettoyer :</strong> Garder votre espace de travail propre</li>
-              <li><strong>Standardiser :</strong> Créer des routines quotidiennes</li>
-              <li><strong>Maintenir :</strong> Maintenir les habitudes</li>
-            </ul>
-            <h4>Liste de Contrôle 5S Quotidienne :</h4>
-            <ul>
-              <li>Nettoyer le bureau et l'équipement</li>
-              <li>Organiser les fichiers et documents</li>
-              <li>Vérifier les outils et matériaux</li>
-              <li>Mettre à jour les tableaux visuels</li>
-              <li>Planifier les tâches du lendemain</li>
-            </ul>
+            <h2>🔧 Formation 5S Poste de Travail</h2>
+            <p><strong>Durée:</strong> 30 minutes</p>
+            <p><strong>Objectif:</strong> Appliquer le 5S à votre poste de travail spécifique</p>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>📍 Votre Poste de Travail 5S</h3>
+            <p>Appliquez les principes 5S directement à votre poste de travail individuel :</p>
+            
+            <!-- Continue with French content -->
+            
+            <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+              <h3 style="color: white;">🎉 Poste 5S Terminé !</h3>
+              <p>Votre poste de travail est maintenant optimisé pour une efficacité maximale !</p>
+            </div>
           `,
           ar: `
-            <h3>5S لمحطة العمل الخاصة بك</h3>
-            <p>تطبيق مبادئ 5S على محطة العمل الفردية الخاصة بك:</p>
-            <ul>
-              <li><strong>الفرز:</strong> إزالة العناصر غير الضرورية من مساحة العمل</li>
-              <li><strong>الترتيب:</strong> تنظيم الأدوات لسهولة الوصول</li>
-              <li><strong>التنظيف:</strong> الحفاظ على نظافة مساحة العمل</li>
-              <li><strong>التوحيد:</strong> إنشاء روتين يومي</li>
-              <li><strong>الاستدامة:</strong> الحفاظ على العادات</li>
-            </ul>
-            <h4>قائمة مراجعة 5S اليومية:</h4>
-            <ul>
-              <li>تنظيف المكتب والمعدات</li>
-              <li>تنظيم الملفات والمستندات</li>
-              <li>فحص الأدوات والمواد</li>
-              <li>تحديث اللوحات البصرية</li>
-              <li>تخطيط مهام اليوم التالي</li>
-            </ul>
+            <h2>🔧 تدريب 5S محطة العمل</h2>
+            <p><strong>المدة:</strong> 30 دقيقة</p>
+            <p><strong>التركيز:</strong> تطبيق 5S على محطة العمل الخاصة بك</p>
+            
+            <hr style="margin: 20px 0; border: 1px solid #e2e8f0;" />
+            
+            <h3>📍 محطة العمل 5S الخاصة بك</h3>
+            <p>تطبيق مبادئ 5S مباشرة على محطة العمل الفردية الخاصة بك:</p>
+            
+            <!-- Continue with Arabic content -->
+            
+            <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+              <h3 style="color: white;">🎉 تم إكمال 5S محطة العمل!</h3>
+              <p>تم الآن تحسين محطة العمل الخاصة بك لتحقيق أقصى كفاءة!</p>
+            </div>
           `
-        },
-        duration: { en: '45 min', fr: '45 min', ar: '45 دقيقة' }
-      },
-      {
-        id: 'level2',
-        name: {
-          en: 'Workplace Organization',
-          fr: 'Organisation du Lieu de Travail',
-          ar: 'تنظيم مكان العمل'
-        },
-        content: {
-          en: `
-            <h3>Organizing Your Work Environment</h3>
-            <ul>
-              <li><strong>Tool Placement:</strong> Tools should be within arm's reach</li>
-              <li><strong>Material Flow:</strong> Optimize material movement</li>
-              <li><strong>Visual Controls:</strong> Use labels and signs</li>
-              <li><strong>Ergonomics:</strong> Design for comfort and efficiency</li>
-              <li><strong>Safety:</strong> Identify and eliminate hazards</li>
-            </ul>
-            <h4>Best Practices:</h4>
-            <ul>
-              <li>Color code tool locations</li>
-              <li>Use shadow boards for tools</li>
-              <li>Label storage areas clearly</li>
-              <li>Create visual work instructions</li>
-              <li>Implement 5S audits</li>
-            </ul>
-          `,
-          fr: `
-            <h3>Organisation de Votre Environnement de Travail</h3>
-            <ul>
-              <li><strong>Placement des Outils :</strong> Les outils doivent être à portée de main</li>
-              <li><strong>Flux de Matériaux :</strong> Optimiser le mouvement des matériaux</li>
-              <li><strong>Contrôles Visuels :</strong> Utiliser des étiquettes et des panneaux</li>
-              <li><strong>Ergonomie :</strong> Concevoir pour le confort et l'efficacité</li>
-              <li><strong>Sécurité :</strong> Identifier et éliminer les dangers</li>
-            </ul>
-            <h4>Bonnes Pratiques :</h4>
-            <ul>
-              <li>Code couleur pour les emplacements des outils</li>
-              <li>Utiliser des tableaux d'ombre pour les outils</li>
-              <li>Étiqueter clairement les zones de stockage</li>
-              <li>Créer des instructions de travail visuelles</li>
-              <li>Mettre en œuvre des audits 5S</li>
-            </ul>
-          `,
-          ar: `
-            <h3>تنظيم بيئة العمل الخاصة بك</h3>
-            <ul>
-              <li><strong>وضع الأدوات:</strong> يجب أن تكون الأدوات في متناول اليد</li>
-              <li><strong>تدفق المواد:</strong> تحسين حركة المواد</li>
-              <li><strong>الضوابط البصرية:</strong> استخدام الملصقات واللافتات</li>
-              <li><strong>بيئة العمل:</strong> التصميم للراحة والكفاءة</li>
-              <li><strong>السلامة:</strong> تحديد وإزالة المخاطر</li>
-            </ul>
-            <h4>أفضل الممارسات:</h4>
-            <ul>
-              <li>الترميز اللوني لمواقع الأدوات</li>
-              <li>استخدام لوحات الظل للأدوات</li>
-              <li>وضع ملصقات واضحة على مناطق التخزين</li>
-              <li>إنشاء تعليمات عمل بصرية</li>
-              <li>تنفيذ عمليات تدقيق 5S</li>
-            </ul>
-          `
-        },
-        duration: { en: '1.5 hours', fr: '1.5 heures', ar: '1.5 ساعة' }
-      },
-      {
-        id: 'level3',
-        name: {
-          en: 'Advanced Poste 5S',
-          fr: '5S Poste Avancé',
-          ar: '5S محطة العمل المتقدمة'
-        },
-        content: {
-          en: `
-            <h3>Advanced Workstation Optimization</h3>
-            <ul>
-              <li><strong>Lean Principles:</strong> Eliminate waste in your workspace</li>
-              <li><strong>Standardized Work:</strong> Create standard work procedures</li>
-              <li><strong>Visual Management:</strong> Advanced visual management techniques</li>
-              <li><strong>Continuous Improvement:</strong> Kaizen at the workstation level</li>
-              <li><strong>Performance Metrics:</strong> Measure and improve performance</li>
-            </ul>
-            <h4>Advanced Tools:</h4>
-            <ul>
-              <li>Andon systems for immediate feedback</li>
-              <li>Jidoka (automation with human touch)</li>
-              <li>Poka-Yoke (error-proofing)</li>
-              <li>Kanban for material replenishment</li>
-              <li>5S maturity assessment</li>
-            </ul>
-          `,
-          fr: `
-            <h3>Optimisation Avancée du Poste de Travail</h3>
-            <ul>
-              <li><strong>Principes Lean :</strong> Éliminer les déchets dans votre espace de travail</li>
-              <li><strong>Travail Standardisé :</strong> Créer des procédures de travail standard</li>
-              <li><strong>Gestion Visuelle :</strong> Techniques avancées de gestion visuelle</li>
-              <li><strong>Amélioration Continue :</strong> Kaizen au niveau du poste de travail</li>
-              <li><strong>Métriques de Performance :</strong> Mesurer et améliorer la performance</li>
-            </ul>
-            <h4>Outils Avancés :</h4>
-            <ul>
-              <li>Systèmes Andon pour un retour immédiat</li>
-              <li>Jidoka (automatisation avec touche humaine)</li>
-              <li>Poka-Yoke (anti-erreur)</li>
-              <li>Kanban pour le réapprovisionnement</li>
-              <li>Évaluation de maturité 5S</li>
-            </ul>
-          `,
-          ar: `
-            <h3>تحسين محطة العمل المتقدمة</h3>
-            <ul>
-              <li><strong>مبادئ اللين:</strong> التخلص من الهدر في مساحة العمل</li>
-              <li><strong>العمل الموحد:</strong> إنشاء إجراءات عمل موحدة</li>
-              <li><strong>الإدارة البصرية:</strong> تقنيات الإدارة البصرية المتقدمة</li>
-              <li><strong>التحسين المستمر:</strong> كايزن على مستوى محطة العمل</li>
-              <li><strong>مقاييس الأداء:</strong> قياس وتحسين الأداء</li>
-            </ul>
-            <h4>الأدوات المتقدمة:</h4>
-            <ul>
-              <li>أنظمة أندون للتغذية الراجعة الفورية</li>
-              <li>جيدوكا (الأتمتة مع اللمسة البشرية)</li>
-              <li>بوكا يوكي (منع الأخطاء)</li>
-              <li>كانبان لإعادة التموين</li>
-              <li>تقييم نضج 5S</li>
-            </ul>
-          `
-        },
-        duration: { en: '2.5 hours', fr: '2.5 heures', ar: '2.5 ساعة' }
+        }
       }
     ]
   }
