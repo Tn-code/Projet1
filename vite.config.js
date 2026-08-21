@@ -31,14 +31,18 @@ export default defineConfig({
             purpose: 'any maskable'
           }
         ]
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}']
       }
     })
   ],
   build: {
     outDir: 'dist',
     sourcemap: false,
-    minify: false, // Désactiver la minification pour éviter l'erreur
+    minify: false,
     rollupOptions: {
+      external: ['chart.js', 'react-chartjs-2'],
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
