@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import FirebaseLogin from './components/FirebaseLogin';
 import Game5S from './components/Game5S';
 import AdminDashboard from './components/AdminDashboard';
+import Footer from './components/Footer';
 import { onAuthStateChange } from './services/authService';
 
 const App = () => {
@@ -75,31 +76,40 @@ const App = () => {
 
   if (gameState === 'login') {
     return (
-      <FirebaseLogin 
-        onLogin={handleLogin}
-        language={language}
-        setLanguage={setLanguage}
-      />
+      <>
+        <FirebaseLogin 
+          onLogin={handleLogin}
+          language={language}
+          setLanguage={setLanguage}
+        />
+        <Footer language={language} />
+      </>
     );
   }
 
   if (gameState === 'admin') {
     return (
-      <AdminDashboard 
-        user={user}
-        onLogout={handleLogout}
-        language={language}
-      />
+      <>
+        <AdminDashboard 
+          user={user}
+          onLogout={handleLogout}
+          language={language}
+        />
+        <Footer language={language} />
+      </>
     );
   }
 
   return (
-    <Game5S 
-      user={user}
-      onLogout={handleLogout}
-      language={language}
-      setLanguage={setLanguage}
-    />
+    <>
+      <Game5S 
+        user={user}
+        onLogout={handleLogout}
+        language={language}
+        setLanguage={setLanguage}
+      />
+      <Footer language={language} />
+    </>
   );
 };
 

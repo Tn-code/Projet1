@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 const Certificate = ({ user, score, onClose, language }) => {
   const getTranslation = (key) => {
@@ -14,41 +14,76 @@ const Certificate = ({ user, score, onClose, language }) => {
     return translations[key]?.[language] || translations[key]?.en || key;
   };
 
-  const handleClose = () => {
+  // Debug: Log when component mounts
+  console.log('Certificate component mounted');
+
+  const handleClose = (e) => {
+    console.log('🔴 handleClose called');
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     // Call the onClose callback to close the certificate
     if (onClose) {
+      console.log('📞 Calling onClose callback');
       onClose();
+    } else {
+      console.log('⚠️ onClose is undefined!');
     }
   };
 
+  // Handle keyboard Escape key
+  useEffect(() => {
+    const handleEsc = (event) => {
+      if (event.key === 'Escape') {
+        console.log('⌨️ Escape key pressed');
+        handleClose();
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+    console.log('✅ Escape key listener added');
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+      console.log('❌ Escape key listener removed');
+    };
+  }, []);
+
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0,0,0,0.6)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 2000,
-      padding: '20px',
-      backdropFilter: 'blur(4px)',
-      animation: 'fadeIn 0.3s ease'
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        padding: '40px',
-        borderRadius: '24px',
-        maxWidth: '550px',
-        width: '100%',
-        textAlign: 'center',
-        boxShadow: '0 25px 80px rgba(0,0,0,0.3)',
-        animation: 'slideUp 0.5s ease',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
+    <div 
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9999,
+        padding: '20px',
+        backdropFilter: 'blur(8px)',
+        animation: 'fadeIn 0.3s ease'
+      }}
+      onClick={handleClose}
+    >
+      <div 
+        style={{
+          backgroundColor: 'white',
+          padding: 'clamp(25px, 5vw, 40px)',
+          borderRadius: '24px',
+          maxWidth: '550px',
+          width: '100%',
+          textAlign: 'center',
+          boxShadow: '0 25px 80px rgba(0,0,0,0.4)',
+          animation: 'slideUp 0.5s ease',
+          position: 'relative',
+          overflow: 'hidden',
+          maxHeight: '90vh',
+          overflowY: 'auto'
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Decorative border */}
         <div style={{
           position: 'absolute',
@@ -68,51 +103,55 @@ const Certificate = ({ user, score, onClose, language }) => {
             right: '20px',
             background: 'none',
             border: 'none',
-            fontSize: '24px',
+            fontSize: 'clamp(24px, 4vw, 28px)',
             cursor: 'pointer',
             color: '#94a3b8',
-            transition: 'color 0.2s, transform 0.2s',
-            padding: '5px',
-            zIndex: 10
+            transition: 'all 0.2s',
+            padding: '5px 10px',
+            borderRadius: '8px',
+            zIndex: 10,
+            lineHeight: '1'
           }}
           onMouseEnter={(e) => {
             e.target.style.color = '#dc2626';
-            e.target.style.transform = 'scale(1.2)';
+            e.target.style.backgroundColor = '#fee2e2';
           }}
           onMouseLeave={(e) => {
             e.target.style.color = '#94a3b8';
-            e.target.style.transform = 'scale(1)';
+            e.target.style.backgroundColor = 'transparent';
           }}
         >
           ✕
         </button>
 
-        <div style={{ fontSize: '72px', margin: '20px 0 10px' }}>🏆</div>
+        <div style={{ fontSize: 'clamp(48px, 10vw, 72px)', margin: '20px 0 10px' }}>🏆</div>
+        
         <h2 style={{ 
-          fontSize: '28px', 
+          fontSize: 'clamp(22px, 4vw, 28px)', 
           fontWeight: '700', 
           color: '#1a2a3a', 
           margin: '10px 0',
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent'
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text'
         }}>
           {getTranslation('title')}
         </h2>
         
         <div style={{ margin: '20px 0' }}>
-          <p style={{ color: '#5a6a7a', fontSize: '16px' }}>
+          <p style={{ color: '#5a6a7a', fontSize: 'clamp(14px, 2vw, 16px)' }}>
             {getTranslation('certifies')}
           </p>
           <h3 style={{ 
-            fontSize: '24px', 
+            fontSize: 'clamp(20px, 3vw, 24px)', 
             fontWeight: '600', 
             color: '#1a2a3a',
             margin: '8px 0'
           }}>
             {user?.displayName || user?.email?.split('@')[0] || 'User'}
           </h3>
-          <p style={{ color: '#5a6a7a', fontSize: '14px', lineHeight: '1.6' }}>
+          <p style={{ color: '#5a6a7a', fontSize: 'clamp(13px, 1.5vw, 14px)', lineHeight: '1.6' }}>
             {getTranslation('completed')}
           </p>
         </div>
@@ -120,21 +159,22 @@ const Certificate = ({ user, score, onClose, language }) => {
         <div style={{
           display: 'flex',
           justifyContent: 'center',
-          gap: '30px',
+          gap: 'clamp(15px, 3vw, 30px)',
           margin: '20px 0',
           padding: '15px',
           backgroundColor: '#f8fafc',
-          borderRadius: '12px'
+          borderRadius: '12px',
+          flexWrap: 'wrap'
         }}>
           <div>
             <div style={{ fontSize: '12px', color: '#5a6a7a' }}>{getTranslation('score')}</div>
-            <div style={{ fontSize: '24px', fontWeight: '700', color: '#667eea' }}>
+            <div style={{ fontSize: 'clamp(20px, 3vw, 24px)', fontWeight: '700', color: '#667eea' }}>
               {score} {getTranslation('points')}
             </div>
           </div>
           <div>
             <div style={{ fontSize: '12px', color: '#5a6a7a' }}>{getTranslation('principles')}</div>
-            <div style={{ fontSize: '24px', fontWeight: '700', color: '#22c55e' }}>
+            <div style={{ fontSize: 'clamp(20px, 3vw, 24px)', fontWeight: '700', color: '#22c55e' }}>
               ✅ 5/5
             </div>
           </div>
@@ -143,18 +183,19 @@ const Certificate = ({ user, score, onClose, language }) => {
         <button
           onClick={handleClose}
           style={{
-            padding: '14px 40px',
+            padding: 'clamp(12px, 2vw, 14px) clamp(20px, 4vw, 40px)',
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             color: 'white',
             border: 'none',
             borderRadius: '12px',
             cursor: 'pointer',
-            fontSize: '16px',
+            fontSize: 'clamp(14px, 1.5vw, 16px)',
             fontWeight: '600',
             transition: 'all 0.3s',
             boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
             marginTop: '10px',
-            width: '100%'
+            width: '100%',
+            minHeight: '44px'
           }}
           onMouseEnter={(e) => {
             e.target.style.transform = 'translateY(-2px)';
