@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Quiz from './Quiz';
 import Assessment from './Assessment';
 
@@ -31,6 +31,17 @@ const Sidebar = ({
     return translations[key]?.[language] || translations[key]?.en || key;
   };
 
+  const isRTL = language === 'ar';
+  
+  // Apply RTL to sidebar
+  useEffect(() => {
+    if (isRTL) {
+      document.documentElement.dir = 'rtl';
+    } else {
+      document.documentElement.dir = 'ltr';
+    }
+  }, [isRTL]);
+
   const handleQuizClick = () => {
     setShowQuiz(true);
   };
@@ -56,12 +67,12 @@ const Sidebar = ({
       <div style={{
         position: 'fixed',
         top: 0,
-        left: 0,
+        [isRTL ? 'right' : 'left']: 0,
         width: isOpen ? '280px' : '0',
         height: '100vh',
         backgroundColor: 'white',
-        boxShadow: '2px 0 20px rgba(0,0,0,0.08)',
-        transition: 'width 0.3s ease',
+        boxShadow: isRTL ? '-2px 0 20px rgba(0,0,0,0.08)' : '2px 0 20px rgba(0,0,0,0.08)',
+        transition: 'width 0.3s ease, right 0.3s ease, left 0.3s ease',
         overflow: 'hidden',
         zIndex: 999,
         display: 'flex',
@@ -141,7 +152,8 @@ const Sidebar = ({
               fontSize: '14px',
               display: 'flex',
               alignItems: 'center',
-              gap: '10px'
+              gap: '10px',
+              [isRTL ? 'flexDirection' : '']: 'row-reverse'
             }}>
               📊 {getTranslation('dashboard')}
             </div>
@@ -175,7 +187,8 @@ const Sidebar = ({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '10px',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                width: '100%'
               }}
               onMouseEnter={(e) => {
                 e.target.style.backgroundColor = '#fde68a';
@@ -210,7 +223,8 @@ const Sidebar = ({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '10px',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                width: '100%'
               }}
               onMouseEnter={(e) => {
                 e.target.style.backgroundColor = '#bfdbfe';
@@ -260,7 +274,8 @@ const Sidebar = ({
                 alignItems: 'center',
                 gap: '10px',
                 marginTop: '10px',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                width: '100%'
               }}
               onMouseEnter={(e) => {
                 e.target.style.backgroundColor = '#fecaca';
@@ -316,6 +331,7 @@ const Sidebar = ({
         <Assessment
           language={language}
           onClose={handleAssessmentClose}
+          user={user}
         />
       )}
 

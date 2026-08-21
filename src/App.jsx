@@ -11,7 +11,7 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Admin emails list - kept for security
+  // Admin emails list
   const ADMIN_EMAILS = [
     'houssine.trabelsi6@gmail.com',
     'admin@5sgame.com'
@@ -22,7 +22,6 @@ const App = () => {
       setLoading(false);
       if (firebaseUser) {
         setUser(firebaseUser);
-        // Check if user is admin (hidden check)
         const isAdminUser = ADMIN_EMAILS.includes(firebaseUser.email);
         setIsAdmin(isAdminUser);
         setGameState(isAdminUser ? 'admin' : 'game');
@@ -34,6 +33,17 @@ const App = () => {
     });
     return () => unsubscribe();
   }, []);
+
+  // Set RTL for Arabic
+  useEffect(() => {
+    if (language === 'ar') {
+      document.documentElement.dir = 'rtl';
+      document.documentElement.lang = 'ar';
+    } else {
+      document.documentElement.dir = 'ltr';
+      document.documentElement.lang = language;
+    }
+  }, [language]);
 
   const handleLogin = (firebaseUser) => {
     setUser(firebaseUser);
