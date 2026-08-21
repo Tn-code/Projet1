@@ -6,6 +6,7 @@ import {
   getUserAssessments 
 } from '../services/adminService';
 import { logout } from '../services/authService';
+import Formation5S from './Formation5S';
 
 const AdminDashboard = ({ user, onLogout, language }) => {
   const [users, setUsers] = useState([]);
@@ -16,7 +17,7 @@ const AdminDashboard = ({ user, onLogout, language }) => {
   const [userAssessments, setUserAssessments] = useState([]);
   const [showUserDetails, setShowUserDetails] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState('assessments');
+  const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
     loadDashboardData();
@@ -42,6 +43,7 @@ const AdminDashboard = ({ user, onLogout, language }) => {
       overview: { en: '📊 Overview', fr: '📊 Aperçu', ar: '📊 نظرة عامة' },
       users: { en: '👥 Users', fr: '👥 Utilisateurs', ar: '👥 المستخدمين' },
       assessments: { en: '📋 Assessments', fr: '📋 Évaluations', ar: '📋 التقييمات' },
+      formation: { en: '📚 Formation 5S', fr: '📚 Formation 5S', ar: '📚 تدريب 5S' },
       totalUsers: { en: 'Total Users', fr: 'Total Utilisateurs', ar: 'إجمالي المستخدمين' },
       totalAssessments: { en: 'Total Assessments', fr: 'Total Évaluations', ar: 'إجمالي التقييمات' },
       averageScore: { en: 'Average Score', fr: 'Score Moyen', ar: 'متوسط النتيجة' },
@@ -73,6 +75,7 @@ const AdminDashboard = ({ user, onLogout, language }) => {
     return translations[key]?.[language] || translations[key]?.en || key;
   };
 
+  // Generate detailed assessment HTML for PDF
   const generateDetailedAssessmentHTML = (assessment) => {
     const principleNames = {
       seiri: { en: 'Seiri (Sort)', fr: 'Seiri (Trier)', ar: 'سيري (الفرز)' },
@@ -170,8 +173,6 @@ const AdminDashboard = ({ user, onLogout, language }) => {
           .section { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
           .section-title { font-size: 18px; font-weight: bold; color: #667eea; border-bottom: 2px solid #667eea; padding-bottom: 8px; margin-bottom: 15px; }
           .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #f8fafc; padding: 15px; border-radius: 8px; }
-          .info-item { padding: 5px; }
-          .info-item strong { color: #475569; }
           .score-badge { display: inline-block; padding: 8px 20px; border-radius: 25px; font-weight: bold; font-size: 16px; }
           .score-high { background: #d1fae5; color: #065f46; }
           .score-medium { background: #fef3c7; color: #92400e; }
@@ -295,6 +296,7 @@ const AdminDashboard = ({ user, onLogout, language }) => {
     return html;
   };
 
+  // Export PDF function
   const handleExportPDF = async (html, filename) => {
     try {
       const html2pdf = await import('html2pdf.js');
@@ -328,12 +330,14 @@ const AdminDashboard = ({ user, onLogout, language }) => {
     }
   };
 
+  // Export individual assessment PDF
   const exportDetailedPDF = (assessment) => {
     const html = generateDetailedAssessmentHTML(assessment);
     const filename = `5S-Assessment-${assessment.prenom}-${assessment.nom}-${new Date().toISOString().split('T')[0]}.pdf`;
     handleExportPDF(html, filename);
   };
 
+  // Export all assessments PDF
   const exportAllDetailedPDF = () => {
     let allHtml = `
       <!DOCTYPE html>
@@ -420,101 +424,17 @@ const AdminDashboard = ({ user, onLogout, language }) => {
     );
   }
 
-  return (
-    <div style={{ 
-      minHeight: '100vh', 
-      backgroundColor: '#f8fafc',
-      padding: '15px',
-      paddingBottom: '30px'
-    }}>
-      {/* Header */}
-      <div className="professional-card animate-fadeInUp" style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        padding: '20px 25px',
-        marginBottom: '25px',
-        borderRadius: '16px',
-        color: 'white',
-        border: 'none'
-      }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '15px'
-        }}>
-          <div>
-            <h1 style={{ 
-              fontSize: 'clamp(1.3rem, 3vw, 1.8rem)', 
-              marginBottom: '4px'
-            }}>
-              👑 {getTranslation('title')}
-            </h1>
-            <p style={{ fontSize: 'clamp(0.8rem, 1.5vw, 0.95rem)', opacity: 0.9 }}>
-              {user?.email || 'Admin'}
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <button
-              onClick={loadDashboardData}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: 'rgba(255,255,255,0.2)',
-                color: 'white',
-                border: '1px solid rgba(255,255,255,0.3)',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: 'clamp(0.7rem, 1.5vw, 0.9rem)',
-                fontWeight: '500',
-                backdropFilter: 'blur(10px)',
-                transition: 'all 0.3s'
-              }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.3)'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.2)'}
-            >
-              🔄 {getTranslation('refresh')}
-            </button>
-            <button
-              onClick={exportAllDetailedPDF}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: 'rgba(255,255,255,0.2)',
-                color: 'white',
-                border: '1px solid rgba(255,255,255,0.3)',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: 'clamp(0.7rem, 1.5vw, 0.9rem)',
-                fontWeight: '500',
-                backdropFilter: 'blur(10px)',
-                transition: 'all 0.3s'
-              }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.3)'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.2)'}
-            >
-              📄 {getTranslation('exportAllPDF')}
-            </button>
-            <button
-              onClick={onLogout}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: 'rgba(220,38,38,0.8)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: 'clamp(0.7rem, 1.5vw, 0.9rem)',
-                fontWeight: '500',
-                transition: 'all 0.3s'
-              }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(220,38,38,1)'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(220,38,38,0.8)'}
-            >
-              {getTranslation('logout')}
-            </button>
-          </div>
-        </div>
-      </div>
+  // Render content based on active tab
+  const renderContent = () => {
+    if (activeTab === 'formation') {
+      return <Formation5S language={language} />;
+    }
+    return renderOverview();
+  };
 
+  // Overview content
+  const renderOverview = () => (
+    <>
       {/* Statistics Cards */}
       <div style={{
         display: 'grid',
@@ -841,6 +761,169 @@ const AdminDashboard = ({ user, onLogout, language }) => {
           )}
         </div>
       </div>
+    </>
+  );
+
+  return (
+    <div style={{ 
+      minHeight: '100vh', 
+      backgroundColor: '#f8fafc',
+      padding: '15px',
+      paddingBottom: '30px'
+    }}>
+      {/* Header */}
+      <div className="professional-card animate-fadeInUp" style={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        padding: '20px 25px',
+        marginBottom: '25px',
+        borderRadius: '16px',
+        color: 'white',
+        border: 'none'
+      }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '15px'
+        }}>
+          <div>
+            <h1 style={{ 
+              fontSize: 'clamp(1.3rem, 3vw, 1.8rem)', 
+              marginBottom: '4px'
+            }}>
+              👑 {getTranslation('title')}
+            </h1>
+            <p style={{ fontSize: 'clamp(0.8rem, 1.5vw, 0.95rem)', opacity: 0.9 }}>
+              {user?.email || 'Admin'}
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <button
+              onClick={loadDashboardData}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: 'rgba(255,255,255,0.2)',
+                color: 'white',
+                border: '1px solid rgba(255,255,255,0.3)',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: 'clamp(0.7rem, 1.5vw, 0.9rem)',
+                fontWeight: '500',
+                backdropFilter: 'blur(10px)',
+                transition: 'all 0.3s'
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.3)'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.2)'}
+            >
+              🔄 {getTranslation('refresh')}
+            </button>
+            <button
+              onClick={exportAllDetailedPDF}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: 'rgba(255,255,255,0.2)',
+                color: 'white',
+                border: '1px solid rgba(255,255,255,0.3)',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: 'clamp(0.7rem, 1.5vw, 0.9rem)',
+                fontWeight: '500',
+                backdropFilter: 'blur(10px)',
+                transition: 'all 0.3s'
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.3)'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(255,255,255,0.2)'}
+            >
+              📄 {getTranslation('exportAllPDF')}
+            </button>
+            <button
+              onClick={onLogout}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: 'rgba(220,38,38,0.8)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: 'clamp(0.7rem, 1.5vw, 0.9rem)',
+                fontWeight: '500',
+                transition: 'all 0.3s'
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(220,38,38,1)'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(220,38,38,0.8)'}
+            >
+              {getTranslation('logout')}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div style={{
+        display: 'flex',
+        gap: '10px',
+        marginBottom: '25px',
+        flexWrap: 'wrap',
+        borderBottom: '2px solid #e2e8f0',
+        paddingBottom: '10px'
+      }}>
+        <button
+          onClick={() => setActiveTab('overview')}
+          style={{
+            padding: '10px 24px',
+            backgroundColor: activeTab === 'overview' ? '#667eea' : 'transparent',
+            color: activeTab === 'overview' ? 'white' : '#475569',
+            border: activeTab === 'overview' ? '2px solid #667eea' : '2px solid transparent',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            fontSize: 'clamp(0.85rem, 1.5vw, 1rem)',
+            fontWeight: '600',
+            transition: 'all 0.3s'
+          }}
+          onMouseEnter={(e) => {
+            if (activeTab !== 'overview') {
+              e.target.style.backgroundColor = '#f1f5f9';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (activeTab !== 'overview') {
+              e.target.style.backgroundColor = 'transparent';
+            }
+          }}
+        >
+          📊 {getTranslation('overview')}
+        </button>
+        <button
+          onClick={() => setActiveTab('formation')}
+          style={{
+            padding: '10px 24px',
+            backgroundColor: activeTab === 'formation' ? '#667eea' : 'transparent',
+            color: activeTab === 'formation' ? 'white' : '#475569',
+            border: activeTab === 'formation' ? '2px solid #667eea' : '2px solid transparent',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            fontSize: 'clamp(0.85rem, 1.5vw, 1rem)',
+            fontWeight: '600',
+            transition: 'all 0.3s'
+          }}
+          onMouseEnter={(e) => {
+            if (activeTab !== 'formation') {
+              e.target.style.backgroundColor = '#f1f5f9';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (activeTab !== 'formation') {
+              e.target.style.backgroundColor = 'transparent';
+            }
+          }}
+        >
+          📚 {getTranslation('formation')}
+        </button>
+      </div>
+
+      {/* Content */}
+      {renderContent()}
 
       {/* User Details Modal */}
       {showUserDetails && selectedUser && (
