@@ -36,3 +36,16 @@ firebase-debug.log
 
 # Cloudflare
 .wrangler/
+# Build outputs
+dist/
+build/
+.wrangler/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*

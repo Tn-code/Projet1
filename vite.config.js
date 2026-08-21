@@ -31,29 +31,13 @@ export default defineConfig({
             purpose: 'any maskable'
           }
         ]
-      },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/firebase/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'firebase-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 7
-              }
-            }
-          }
-        ]
       }
     })
   ],
   build: {
     outDir: 'dist',
     sourcemap: false,
-    minify: 'terser',
+    minify: false, // Désactiver la minification pour éviter l'erreur
     rollupOptions: {
       output: {
         manualChunks: {
@@ -61,7 +45,8 @@ export default defineConfig({
           firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore']
         }
       }
-    }
+    },
+    chunkSizeWarningLimit: 1000
   },
   server: {
     port: 3000,
