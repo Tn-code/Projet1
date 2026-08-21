@@ -11,9 +11,11 @@
     "cloudflare-build": "npm install --legacy-peer-deps && npm run build"
   },
   "dependencies": {
+    "chart.js": "^4.5.1",
     "firebase": "^10.7.1",
-    "html2pdf.js": "^0.10.1",
+    "html2pdf.js": "^0.10.3",
     "react": "^18.2.0",
+    "react-chartjs-2": "^5.3.1",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
@@ -21,6 +23,7 @@
     "@types/react-dom": "^18.2.17",
     "@vitejs/plugin-react": "^4.2.1",
     "terser": "^5.26.0",
-    "vite": "^5.0.8"
+    "vite": "^5.0.8",
+    "vite-plugin-pwa": "^1.3.0"
   }
 }

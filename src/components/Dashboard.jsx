@@ -1,6 +1,56 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { 
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+  ArcElement,
+  RadialLinearScale
+} from 'chart.js';
+import { Line, Bar, Doughnut, PolarArea } from 'react-chartjs-2';
+import { getAllAssessments, getAssessmentStats } from '../services/adminService';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+  ArcElement,
+  RadialLinearScale
+);
 
 const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
+  const [assessments, setAssessments] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [timeRange, setTimeRange] = useState('week');
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    setLoading(true);
+    const [assessmentsResult, statsResult] = await Promise.all([
+      getAllAssessments(),
+      getAssessmentStats()
+    ]);
+    if (assessmentsResult.data) setAssessments(assessmentsResult.data);
+    if (statsResult.data) setStats(statsResult.data);
+    setLoading(false);
+  };
+
   const getTranslation = (key) => {
     const translations = {
       title: { en: '📊 Performance Dashboard', fr: '📊 Tableau de Performance', ar: '📊 لوحة الأداء' },
@@ -19,15 +69,20 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
       quiz: { en: '📝 Quiz', fr: '📝 Quiz', ar: '📝 اختبار' },
       accuracy: { en: 'Accuracy', fr: 'Précision', ar: 'الدقة' },
       streak: { en: '🔥 Streak', fr: '🔥 Série', ar: '🔥 السلسلة' },
-      level: { en: '⭐ Level', fr: '⭐ Niveau', ar: '⭐ المستوى' }
+      level: { en: '⭐ Level', fr: '⭐ Niveau', ar: '⭐ المستوى' },
+      performance: { en: 'Performance Overview', fr: 'Aperçu de la Performance', ar: 'نظرة عامة على الأداء' },
+      principlesPerformance: { en: 'Principles Performance', fr: 'Performance par Principe', ar: 'الأداء حسب المبدأ' },
+      scoreDistribution: { en: 'Score Distribution', fr: 'Distribution des Scores', ar: 'توزيع النقاط' },
+      recentActivity: { en: 'Recent Activity', fr: 'Activité Récente', ar: 'النشاط الأخير' },
+      exportReport: { en: '📄 Export Report', fr: '📄 Exporter le Rapport', ar: '📄 تصدير التقرير' },
+      refresh: { en: '🔄 Refresh', fr: '🔄 Rafraîchir', ar: '🔄 تحديث' },
+      totalAssessments: { en: 'Total Assessments', fr: 'Total Évaluations', ar: 'إجمالي التقييمات' },
+      averageScore: { en: 'Average Score', fr: 'Score Moyen', ar: 'متوسط النتيجة' }
     };
     return translations[key]?.[language] || translations[key]?.en || key;
   };
 
-  const progress = Math.round((completedPrinciples / 5) * 100);
-  const nextMilestone = completedPrinciples < 5 ? `${completedPrinciples + 1}/5 ${getTranslation('principles')}` : '🎉 Complete!';
-  
-  // Determine level based on score
+  // Level calculation
   const getLevel = () => {
     if (totalScore >= 80) return { name: 'Expert', emoji: '🏆', color: '#8b5cf6' };
     if (totalScore >= 60) return { name: 'Advanced', emoji: '🥇', color: '#667eea' };
@@ -36,7 +91,84 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
     return { name: 'Novice', emoji: '🌱', color: '#94a3b8' };
   };
 
+  // Chart data preparation
+  const getPerformanceTrend = () => {
+    const sorted = [...assessments].sort((a, b) => 
+      new Date(a.createdAt) - new Date(b.createdAt)
+    );
+    const labels = sorted.map(a => new Date(a.createdAt).toLocaleDateString());
+    const scores = sorted.map(a => a.score);
+    return { labels, scores };
+  };
+
+  const getPrinciplesData = () => {
+    const principles = {
+      seiri: { en: 'Seiri', fr: 'Seiri', ar: 'سيري' },
+      seiton: { en: 'Seiton', fr: 'Seiton', ar: 'سيتون' },
+      seiso: { en: 'Seiso', fr: 'Seiso', ar: 'سيسو' },
+      seiketsu: { en: 'Seiketsu', fr: 'Seiketsu', ar: 'سيكيتسو' },
+      shitsuke: { en: 'Shitsuke', fr: 'Shitsuke', ar: 'شيتسوكي' }
+    };
+    
+    const scores = {};
+    Object.keys(principles).forEach(p => {
+      scores[p] = { correct: 0, total: 0 };
+    });
+    
+    assessments.forEach(a => {
+      if (a.results) {
+        Object.keys(a.results).forEach(p => {
+          if (scores[p]) {
+            scores[p].correct += a.results[p].correct || 0;
+            scores[p].total += a.results[p].total || 0;
+          }
+        });
+      }
+    });
+    
+    const labels = Object.keys(principles).map(p => principles[p][language] || principles[p].en);
+    const data = Object.values(scores).map(s => 
+      s.total > 0 ? Math.round((s.correct / s.total) * 100) : 0
+    );
+    const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFD93D'];
+    return { labels, data, colors };
+  };
+
+  const getScoreDistribution = () => {
+    const distribution = { '0-5': 0, '6-10': 0, '11-15': 0 };
+    assessments.forEach(a => {
+      if (a.score <= 5) distribution['0-5']++;
+      else if (a.score <= 10) distribution['6-10']++;
+      else distribution['11-15']++;
+    });
+    return {
+      labels: ['0-5', '6-10', '11-15'],
+      data: Object.values(distribution),
+      colors: ['#dc2626', '#f59e0b', '#22c55e']
+    };
+  };
+
   const level = getLevel();
+  const progress = Math.round((completedPrinciples / 5) * 100);
+  const trend = getPerformanceTrend();
+  const principlesData = getPrinciplesData();
+  const distribution = getScoreDistribution();
+
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '40px',
+        flexDirection: 'column',
+        gap: '20px'
+      }}>
+        <div className="spinner" />
+        <p style={{ color: '#5a6a7a' }}>Loading dashboard...</p>
+      </div>
+    );
+  }
 
   return (
     <div style={{
@@ -44,29 +176,29 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
     }}>
       {/* Welcome Header */}
       <div style={{
-        background: 'white',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         borderRadius: '16px',
-        padding: '20px 25px',
-        marginBottom: '20px',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
+        padding: '25px 30px',
+        marginBottom: '25px',
+        color: 'white',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         flexWrap: 'wrap',
-        gap: '15px'
+        gap: '15px',
+        boxShadow: '0 4px 20px rgba(102, 126, 234, 0.3)'
       }}>
         <div>
           <h3 style={{ 
             fontSize: 'clamp(1.1rem, 2.5vw, 1.4rem)', 
-            color: '#1a2a3a',
             marginBottom: '4px'
           }}>
-            {getTranslation('title')}
-          </h3>
-          <p style={{ color: '#5a6a7a', fontSize: 'clamp(0.8rem, 1.5vw, 0.95rem)' }}>
-            {getTranslation('welcome')} <strong style={{ color: '#667eea' }}>
+            👋 {getTranslation('welcome')} <strong style={{ color: '#f0f4ff' }}>
               {user?.displayName || user?.email?.split('@')[0] || 'User'}
             </strong>
+          </h3>
+          <p style={{ fontSize: 'clamp(0.8rem, 1.5vw, 0.95rem)', opacity: 0.9 }}>
+            {getTranslation('stats')}
           </p>
         </div>
         <div style={{
@@ -75,11 +207,11 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
           gap: '12px'
         }}>
           <div style={{
-            padding: '8px 16px',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            padding: '8px 20px',
+            backgroundColor: 'rgba(255,255,255,0.15)',
             borderRadius: '12px',
-            color: 'white',
-            textAlign: 'center'
+            textAlign: 'center',
+            backdropFilter: 'blur(10px)'
           }}>
             <div style={{ fontSize: '10px', opacity: 0.8 }}>{getTranslation('level')}</div>
             <div style={{ fontSize: 'clamp(1rem, 2vw, 1.2rem)', fontWeight: '700' }}>
@@ -87,12 +219,13 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
             </div>
           </div>
           <div style={{
-            padding: '8px 16px',
-            backgroundColor: progress === 100 ? '#d1fae5' : '#fef3c7',
+            padding: '8px 20px',
+            backgroundColor: progress === 100 ? 'rgba(34,197,94,0.3)' : 'rgba(251,191,36,0.3)',
             borderRadius: '12px',
             fontSize: 'clamp(0.8rem, 1.5vw, 0.95rem)',
             fontWeight: '600',
-            color: progress === 100 ? '#065f46' : '#92400e'
+            color: 'white',
+            backdropFilter: 'blur(10px)'
           }}>
             {progress === 100 ? '🏆 Complete!' : `${progress}%`}
           </div>
@@ -102,11 +235,10 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
       {/* Stats Grid - 4 columns */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(150px, 22vw, 220px), 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(160px, 22vw, 220px), 1fr))',
         gap: '15px',
-        marginBottom: '20px'
+        marginBottom: '25px'
       }}>
-        {/* Total Points */}
         <div className="professional-card" style={{
           padding: '18px 20px',
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -124,7 +256,6 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
           </div>
         </div>
 
-        {/* Principles Learned */}
         <div className="professional-card" style={{
           padding: '18px 20px',
           background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
@@ -142,7 +273,6 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
           </div>
         </div>
 
-        {/* Next Milestone */}
         <div className="professional-card" style={{
           padding: '18px 20px',
           background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
@@ -153,14 +283,13 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
             {getTranslation('nextMilestone')}
           </div>
           <div style={{ fontSize: 'clamp(1.4rem, 3vw, 2rem)', fontWeight: '700', marginTop: '4px' }}>
-            {nextMilestone}
+            {completedPrinciples < 5 ? `${completedPrinciples + 1}/5 ${getTranslation('principles')}` : '🎉 Complete!'}
           </div>
           <div style={{ fontSize: '11px', opacity: 0.7, marginTop: '4px' }}>
             {progress < 100 ? 'Keep going!' : '🎉 You\'re done!'}
           </div>
         </div>
 
-        {/* Level / Streak */}
         <div className="professional-card" style={{
           padding: '18px 20px',
           background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
@@ -182,7 +311,7 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
       {/* Progress Bar with Milestones */}
       <div className="professional-card" style={{
         padding: '20px 25px',
-        marginBottom: '20px'
+        marginBottom: '25px'
       }}>
         <div style={{
           display: 'flex',
@@ -235,7 +364,7 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
-          marginTop: '8px',
+          marginTop: '10px',
           padding: '0 2px'
         }}>
           {[1, 2, 3, 4, 5].map((i) => (
@@ -246,8 +375,8 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
               gap: '2px'
             }}>
               <div style={{
-                width: '16px',
-                height: '16px',
+                width: '20px',
+                height: '20px',
                 borderRadius: '50%',
                 backgroundColor: completedPrinciples >= i ? '#22c55e' : '#e2e8f0',
                 border: completedPrinciples >= i ? '3px solid #16a34a' : '2px solid #cbd5e1',
@@ -255,13 +384,13 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '9px',
+                fontSize: '10px',
                 color: completedPrinciples >= i ? 'white' : '#94a3b8'
               }}>
                 {completedPrinciples >= i ? '✓' : i}
               </div>
               <span style={{
-                fontSize: '10px',
+                fontSize: '9px',
                 color: completedPrinciples >= i ? '#1a2a3a' : '#94a3b8',
                 fontWeight: completedPrinciples >= i ? '600' : '400'
               }}>
@@ -275,13 +404,95 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
         </div>
       </div>
 
+      {/* Charts Section */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+        gap: '20px',
+        marginBottom: '25px'
+      }}>
+        {/* Performance Trend */}
+        <div className="professional-card">
+          <h4 style={{ marginBottom: '15px', color: '#1a2a3a' }}>
+            📈 {getTranslation('performance')}
+          </h4>
+          {trend.labels.length > 0 ? (
+            <Line
+              data={{
+                labels: trend.labels.slice(-10),
+                datasets: [{
+                  label: 'Score',
+                  data: trend.scores.slice(-10),
+                  borderColor: '#667eea',
+                  backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                  fill: true,
+                  tension: 0.4
+                }]
+              }}
+              options={{
+                responsive: true,
+                plugins: {
+                  legend: { display: false }
+                },
+                scales: {
+                  y: {
+                    min: 0,
+                    max: 15
+                  }
+                }
+              }}
+            />
+          ) : (
+            <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>
+              No data available yet
+            </p>
+          )}
+        </div>
+
+        {/* Principles Performance */}
+        <div className="professional-card">
+          <h4 style={{ marginBottom: '15px', color: '#1a2a3a' }}>
+            📊 {getTranslation('principlesPerformance')}
+          </h4>
+          {principlesData.data.some(d => d > 0) ? (
+            <Bar
+              data={{
+                labels: principlesData.labels,
+                datasets: [{
+                  label: 'Performance (%)',
+                  data: principlesData.data,
+                  backgroundColor: principlesData.colors,
+                  borderRadius: 8
+                }]
+              }}
+              options={{
+                responsive: true,
+                plugins: {
+                  legend: { display: false }
+                },
+                scales: {
+                  y: {
+                    max: 100,
+                    beginAtZero: true
+                  }
+                }
+              }}
+            />
+          ) : (
+            <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>
+              No data available yet
+            </p>
+          )}
+        </div>
+      </div>
+
       {/* Quick Stats - 3 columns */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-        gap: '15px'
+        gap: '15px',
+        marginBottom: '20px'
       }}>
-        {/* Assessment Stats */}
         <div className="professional-card" style={{
           padding: '18px 20px',
           textAlign: 'center',
@@ -292,14 +503,13 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
             {getTranslation('assessment')}
           </div>
           <div style={{ fontSize: '24px', fontWeight: '700', color: '#667eea', marginTop: '4px' }}>
-            {completedPrinciples > 0 ? '✓' : '0'}
+            {assessments.length}
           </div>
           <div style={{ fontSize: '12px', color: '#5a6a7a' }}>
-            {completedPrinciples > 0 ? getTranslation('completed') : getTranslation('pending')}
+            {assessments.length > 0 ? getTranslation('completed') : getTranslation('pending')}
           </div>
         </div>
 
-        {/* Quiz Stats */}
         <div className="professional-card" style={{
           padding: '18px 20px',
           textAlign: 'center',
@@ -317,7 +527,6 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
           </div>
         </div>
 
-        {/* Member Since */}
         <div className="professional-card" style={{
           padding: '18px 20px',
           textAlign: 'center',
@@ -341,12 +550,11 @@ const Dashboard = ({ user, totalScore, completedPrinciples, language }) => {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes slideInLeft {
-          from { opacity: 0; transform: translateX(-20px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
         .professional-card {
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          background: white;
+          border-radius: 12px;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
         }
         .professional-card:hover {
           transform: translateY(-4px);

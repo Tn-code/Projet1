@@ -24,6 +24,7 @@ const Game5S = ({ user, onLogout, language, setLanguage }) => {
   const [showSidebar, setShowSidebar] = useState(window.innerWidth >= 641);
   const [certificateShown, setCertificateShown] = useState(false);
 
+  // Handle window resize for responsive sidebar
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 641) {
@@ -94,14 +95,19 @@ const Game5S = ({ user, onLogout, language, setLanguage }) => {
     setShowSidebar(!showSidebar);
   };
 
+  // Close certificate handler
   const handleCloseCertificate = useCallback(() => {
+    console.log('🔴 Closing certificate...');
     setShowCertificate(false);
     setCertificateShown(true);
   }, []);
 
+  // Show certificate when all principles are completed
   useEffect(() => {
     if (completedPrinciples.length === 5 && !showCertificate && !certificateShown) {
+      console.log('🏆 All principles completed! Showing certificate...');
       setShowCertificate(true);
+      // Save progress to Firebase
       saveUserProgress(user.uid, {
         completedPrinciples: completedPrinciples,
         score: score
@@ -119,8 +125,20 @@ const Game5S = ({ user, onLogout, language, setLanguage }) => {
         flexDirection: 'column',
         gap: '20px'
       }}>
-        <div className="spinner" />
+        <div style={{
+          width: '50px',
+          height: '50px',
+          border: '4px solid #e2e8f0',
+          borderTop: '4px solid #667eea',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }} />
         <p style={{ color: '#5a6a7a' }}>Loading your progress...</p>
+        <style>{`
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
       </div>
     );
   }
@@ -260,7 +278,7 @@ const Game5S = ({ user, onLogout, language, setLanguage }) => {
           </div>
         </div>
 
-        {/* Dashboard */}
+        {/* Dashboard with Charts and Analytics */}
         <Dashboard 
           user={user} 
           totalScore={score} 
@@ -379,6 +397,26 @@ const Game5S = ({ user, onLogout, language, setLanguage }) => {
           </div>
         )}
       </div>
+
+      <style>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 640px) {
+          .menu-toggle {
+            display: block !important;
+          }
+          div[style*="paddingLeft"] {
+            padding-left: 20px !important;
+          }
+        }
+        @media (min-width: 641px) {
+          .menu-toggle {
+            display: none !important;
+          }
+        }
+      `}</style>
     </div>
   );
 };
